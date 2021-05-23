@@ -1,0 +1,17 @@
+.model__training {
+  display: flex;
+  flex-direction: column;
+  flex: 0.3;
+  background-color: white;
+  align-items: center;
+  justify-content: space-evenly;
+  overflow-y: scroll;
+  padding: 20px;
+}
+.form__input {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+}

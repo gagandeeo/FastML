@@ -1,0 +1,5 @@
+.model__result {
+  background-color: aquamarine;
+  display: flex;
+  flex: 0.55;
+}

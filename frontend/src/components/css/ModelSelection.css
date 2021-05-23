@@ -1,0 +1,32 @@
+.model__selection {
+  display: flex;
+  flex: 0.2;
+  flex-direction: column;
+  background-color: blueviolet;
+  align-items: center;
+  justify-content: space-between;
+  overflow-y: scroll;
+}
+.model__list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: aliceblue;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 80%;
+  height: 5%;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.model__list > h3 {
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.model__list > h3:hover {
+  overflow: visible;
+  text-overflow: unset;
+}

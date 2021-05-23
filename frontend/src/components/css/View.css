@@ -1,0 +1,7 @@
+.view {
+  display: flex;
+  height: 100vh;
+  background-color: rgb(219, 135, 32);
+  justify-content: space-between;
+  /* padding: 5px; */
+}
