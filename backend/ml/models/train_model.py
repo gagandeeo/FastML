@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn import impute
 from sklearn import preprocessing
+from sklearn.pipeline import Pipeline
 import joblib
 import time
 
@@ -25,37 +26,48 @@ class TrainModel:
         self.model_instance = None
         self.X = None
         self.y = None
+        self.pipeline_instance = Pipeline(
+            [('imputer', impute.SimpleImputer())]
+        )
         self.targets = targets
 
-    def prepare_data(self, dropna=True, imputer=None,  encoding=None, scaling=None):
-        # df = pd.read_csv(self.data)
-        if (imputer != "string"):
-            imputer_instance = eval(f"impute.{imputer}()")
-        else:
-            self.df.drop(self.df.index[130:], inplace=True)
+    def prepare_data(self, dropna=True, imputer=None, encoding=None, scaling=None):
 
         self.X = self.df[[c for c in self.df.columns if c !=
                           self.targets]].to_numpy()
         self.y = self.df[self.targets].to_numpy().reshape(-1, 1)
 
+        if (imputer not in ["string", "", None]):
+            self.imputer_instance = eval(
+                f"impute.{imputer}(strategy='most_frequent')")
+            self.X = self.imputer_instance.fit_transform(self.X)
+            self.pipeline_instance.steps.append(
+                ['imputer', self.imputer_instance])
+        else:
+            self.df.drop(self.df.index[130:], inplace=True)
+
         if(encoding != "string"):
             encoder_instance = eval(f"preprocessing.{encoding}()")
             self.y = encoder_instance.fit_transform(self.y)
-        if(scaling != "string"):
-            scaler_instance = eval(f"preprocessing.{scaling}()")
-            self.X = scaler_instance.fit_transform(self.X)
+        if(scaling not in ["string", "", None]):
+            self.scaler_instance = eval(f"preprocessing.{scaling}()")
+            self.X = self.scaler_instance.fit_transform(self.X)
+            self.pipeline_instance.steps.append(
+                ['scaler', self.scaler_instance])
 
     def train(self, hyperparams, test_size=0.25):
+
         X_train, X_test, y_train, y_test = train_test_split(
             self.X, self.y.ravel(), test_size=test_size)
         self.model_instance = eval(f"{self.model_name}()")
         if bool(hyperparams):
             self.model_instance.set_params(**hyperparams)
         self.model_instance.fit(X_train, y_train)
+        self.pipeline_instance.steps.append(
+            ['model', self.model_instance])
+        self.pipeline_instance.steps.pop(0)
         score = self.model_instance.score(X_test, y_test)
         jblib_path = f"static/joblibs_models/{time.time()}.joblib"
-        joblib.dump(self.model_instance, Path.joinpath(BASE_DIR, jblib_path))
+        joblib.dump(self.pipeline_instance,
+                    Path.joinpath(BASE_DIR, jblib_path))
         return score, jblib_path
-
-# df = pd.read_csv("./housing.csv")
-# print(df.head())

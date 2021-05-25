@@ -1,7 +1,5 @@
-from typing import List, Optional
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 import aiofiles
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
@@ -97,7 +95,5 @@ async def test_upload(properties: schemas.UploadData, db: Session = Depends(get_
 async def predict_data(test_req: schemas.PredictIn, db: Session = Depends(get_db)):
     db_query = db.query(models.DataIn).order_by(
         models.DataIn.id.desc()).first()
-    print(type(test_req.x_data))
     res = predict_model.predict(db_query.temp, test_req.x_data)[0]
-    print(res)
     return {"prediction": res}
