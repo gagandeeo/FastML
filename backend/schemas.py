@@ -22,3 +22,12 @@ class HyperParams(BaseModel):
 class TrainModelIn(BaseModel):
     hyper_params: Optional[Dict] = {}
     targets: str
+    test_size: float = 0.25
+    dropna: bool = True
+    impute: Optional[str] = None
+    encoding: Optional[str] = None
+    scaling: Optional[str] = None
+
+
+class PredictIn(BaseModel):
+    x_data: List[float]

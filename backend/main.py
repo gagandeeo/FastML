@@ -1,18 +1,18 @@
-from typing import Optional
+from typing import List, Optional
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import aiofiles
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
-import pandas as pd
 import models
 import schemas
 from database import SessionLocal, engine
-from ml.models import hyperparams, train_model
+from ml.models import hyperparams, train_model, predict_model
 from ml import prepare_data
 
 models.Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI()
 app.add_middleware(
@@ -22,8 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/")
@@ -39,24 +37,13 @@ def get_db():
         db.close()
 
 
-# @app.post("/upload_data")
-# def upload_data(request: schemas.DataIn, db: Session = Depends(get_db)):
-#     db_request = models.DataIn(
-#         temp=request.temp
-#     )
-#     db.add(db_request)
-#     db.commit()
-#     db.refresh(db_request)
-#     return {"temp": db_request.temp}
-
-
 @app.post("/test/upload")
 async def test_upload(file: UploadFile = File(...), db: Session = Depends(get_db)):
     print(type(file))
-    async with aiofiles.open("./static/{}".format(file.filename), "wb") as out_file:
+    async with aiofiles.open("./static/data/{}".format(file.filename), "wb") as out_file:
         content = await file.read()
         await out_file.write(content)
-    url = str("static/"+file.filename)
+    url = str("static/data/"+file.filename)
 
     db_request = models.DataIn(
         url=url
@@ -79,12 +66,19 @@ async def test_select_model(model_name: str, db: Session = Depends(get_db)):
 
 @app.post("/test/train-model")
 async def test_train_model(properties: schemas.TrainModelIn, db: Session = Depends(get_db)):
+    print(properties)
     db_query = db.query(models.DataIn).order_by(
         models.DataIn.id.desc()).first()
     ml_model = train_model.TrainModel(
         data=db_query.url, targets=properties.targets, model_name=db_query.model_name)
-    # data=db_query.url, targets=properties.targets, model_name=db_query.model_name)
-    score = ml_model.train(properties.hyper_params)
+    ml_model.prepare_data(dropna=properties.dropna, imputer=properties.impute,
+                          encoding=properties.encoding, scaling=properties.scaling)
+    score, jblib_path = ml_model.train(
+        hyperparams=properties.hyper_params, test_size=properties.test_size)
+    db.query(models.DataIn).filter(models.DataIn.id ==
+                                   db_query.id).update({models.DataIn.temp: jblib_path})
+    db.commit()
+    db.refresh(db_query)
     return {"score": score}
 
 
@@ -97,3 +91,13 @@ async def test_upload(properties: schemas.UploadData, db: Session = Depends(get_
                              properties.dropna).prepare()
 
     return {"Result": "Done"}
+
+
+@app.post("/test/predict")
+async def predict_data(test_req: schemas.PredictIn, db: Session = Depends(get_db)):
+    db_query = db.query(models.DataIn).order_by(
+        models.DataIn.id.desc()).first()
+    print(type(test_req.x_data))
+    res = predict_model.predict(db_query.temp, test_req.x_data)[0]
+    print(res)
+    return {"prediction": res}

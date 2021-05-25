@@ -13,73 +13,37 @@ function ModelSelection(props) {
       name: "DecisionTreeClassifier",
     },
     {
-      name: " 😃 Rose",
+      name: "LogisticRegression",
     },
     {
-      name: "😃 Mike",
+      name: "SVC",
     },
     {
-      name: "😃 Liz",
+      name: "SVR",
     },
     {
-      name: "LinearRegression",
+      name: "GaussianNB",
     },
     {
-      name: "DecisionTreeClassifier",
+      name: "KNeighborsClassifier",
     },
     {
-      name: " 😃 Rose",
+      name: "KNeighborsRegressor",
     },
     {
-      name: "😃 Mike",
+      name: "KMeans",
     },
     {
-      name: "😃 Liz",
+      name: "RandomForestClassifier",
     },
     {
-      name: "LinearRegression",
+      name: "RandomForestRegressor",
     },
     {
-      name: "DecisionTreeClassifier",
+      name: "GradientBoostingClassifier",
     },
     {
-      name: " 😃 Rose",
-    },
-    {
-      name: "😃 Mike",
-    },
-    {
-      name: "😃 Liz",
-    },
-    {
-      name: "LinearRegression",
-    },
-    {
-      name: "DecisionTreeClassifier",
-    },
-    {
-      name: " 😃 Rose",
-    },
-    {
-      name: "😃 Mike",
-    },
-    {
-      name: "😃 Liz",
-    },
-    {
-      name: "LinearRegression",
-    },
-    {
-      name: "DecisionTreeClassifier",
-    },
-    {
-      name: " 😃 Rose",
-    },
-    {
-      name: "😃 Mike",
-    },
-    {
-      name: "😃 Liz",
+      name: "GradientBoostingRegressor",
     },
   ];
 
@@ -87,8 +51,8 @@ function ModelSelection(props) {
     postTest: PropTypes.func.isRequired,
   };
   const selectModel = (e, name) => {
-    e.preventDefault();
-
+    props.func(true);
+    props.setName(name);
     const data = {
       model_name: name,
     };
@@ -111,7 +75,7 @@ function ModelSelection(props) {
           className="model__list"
           key={index}
         >
-          <h3>{user.name}</h3>
+          <label>{user.name}</label>
         </div>
       ))}
     </div>

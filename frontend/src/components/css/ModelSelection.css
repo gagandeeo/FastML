@@ -1,12 +1,13 @@
 .model__selection {
   display: flex;
-  flex: 0.2;
   flex-direction: column;
+  height: 50vh;
   background-color: blueviolet;
   align-items: center;
   justify-content: space-between;
   overflow-y: scroll;
 }
+
 .model__list {
   display: flex;
   align-items: center;
@@ -20,13 +21,23 @@
   cursor: pointer;
   border-radius: 8px;
 }
-.model__list > h3 {
+.model__list > label {
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.model__list > h3:hover {
+.model__list > label::selection {
+  color: aqua;
+}
+.model__list:active {
+  background-color: rgb(255, 0, 212);
+}
+.model__list > label:hover {
   overflow: visible;
   text-overflow: unset;
+  cursor: pointer;
+}
+.add__selection {
+  background-color: aqua;
 }

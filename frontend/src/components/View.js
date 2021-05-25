@@ -6,7 +6,7 @@ import ModelTraining from "./ModelTraining";
 function View() {
   return (
     <div className="view">
-      <ModelSelection />
+      {/* <ModelSelection /> */}
       <ModelResult />
       <ModelTraining />
     </div>
