@@ -11,7 +11,15 @@ import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ModelSelection from "./ModelSelection";
-import { Input, Slider, TextField } from "@material-ui/core";
+import {
+  FormControl,
+  Input,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slider,
+  TextField,
+} from "@material-ui/core";
 
 function valuetext(value) {
   return `${value}°C`;
@@ -25,6 +33,9 @@ function ModelTraining(props) {
   const [targets, setTargets] = useState(null);
   const [testSize, setTestSize] = useState(0.25);
   const [modelName, setModelName] = useState(null);
+  const [encoder, setEncoder] = useState("");
+  const [imputer, setImputer] = useState("");
+  const [scaler, setScaler] = useState("");
 
   const propTypes = {
     data: PropTypes.object,
@@ -137,7 +148,7 @@ function ModelTraining(props) {
                 <Typography>Prepare Training Data</Typography>
               </AccordionSummary>
               <div className="prepare__accdetails">
-                <div className="prepare__options">
+                <div className="prepare__options" style={{ width: "80%" }}>
                   <input
                     style={{ marginLeft: "24%" }}
                     type="checkbox"
@@ -148,46 +159,102 @@ function ModelTraining(props) {
                 </div>
 
                 <div className="prepare__options">
+                  <FormControl variant="filled" style={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-filled-label">
+                      Imputer-Name
+                    </InputLabel>
+                    <Select
+                      style={{ width: "100%" }}
+                      labelId="demo-simple-select-filled-label"
+                      id="demo-simple-select-filled"
+                      variant="filled"
+                      autoWidth={true}
+                      value={imputer}
+                      onChange={(e) => setImputer(e.target.value)}
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      <MenuItem value={"SimpleImputer"}>SimpleImputer</MenuItem>
+                      <MenuItem value={"IterativeImputer"}>
+                        IterativeImputer
+                      </MenuItem>
+                      <MenuItem value={"MissingIndicator"}>
+                        MissingIndicator
+                      </MenuItem>
+                      <MenuItem value={"KNNImputer"}>KNNImputer</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+                <div className="prepare__options">
+                  <FormControl variant="filled" style={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-filled-label">
+                      Encoder-Name
+                    </InputLabel>
+                    <Select
+                      style={{ width: "100%" }}
+                      labelId="demo-simple-select-filled-label"
+                      id="demo-simple-select-filled"
+                      variant="filled"
+                      autoWidth={true}
+                      value={encoder}
+                      onChange={(e) => setEncoder(e.target.value)}
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      <MenuItem value={"OrdinalEncoder"}>
+                        OrdinalEncoder
+                      </MenuItem>
+                      <MenuItem value={"OneHotEncoder"}>OneHotEncoder</MenuItem>
+                      <MenuItem value={"LabelEncoder"}>LabelEncoder</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+                <div className="prepare__options">
+                  <FormControl variant="filled" style={{ width: "100%" }}>
+                    <InputLabel id="demo-simple-select-filled-label">
+                      Scaler-Name
+                    </InputLabel>
+                    <Select
+                      style={{ width: "100%" }}
+                      labelId="demo-simple-select-filled-label"
+                      id="demo-simple-select-filled"
+                      variant="filled"
+                      autoWidth={true}
+                      value={scaler}
+                      onChange={(e) => setScaler(e.target.value)}
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      <MenuItem value={"MinMaxScaler"}>MinMaxScaler</MenuItem>
+                      <MenuItem value={"StandardScaler"}>
+                        StandardScaler
+                      </MenuItem>
+                      <MenuItem value={"MaxAbsScaler"}>MaxAbsScaler</MenuItem>
+                      <MenuItem value={"RobustScaler"}>RobustScaler</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+                <div className="prepare__options">
                   <TextField
-                    style={{ width: "100%" }}
                     size="small"
-                    variant="filled"
-                    label="Imputer-Name"
-                    onChange={handlePrepareChange}
+                    variant="outlined"
+                    className="target__input"
+                    label="Target Class-Name"
+                    onChange={handleTargetChange}
                   />
                 </div>
                 <div className="prepare__options">
                   <TextField
                     size="small"
-                    style={{ width: "100%" }}
-                    variant="filled"
-                    label="Encoder-Name"
-                    onChange={handlePrepareChange}
+                    variant="outlined"
+                    className="target__input"
+                    label="test_size = 0.25"
+                    onChange={(e) => setTestSize(e.target.value)}
                   />
                 </div>
-                <div className="prepare__options">
-                  <TextField
-                    style={{ width: "100%" }}
-                    size="small"
-                    variant="filled"
-                    label="Scaler-Name"
-                    onChange={handlePrepareChange}
-                  />
-                </div>
-                <TextField
-                  size="small"
-                  variant="outlined"
-                  className="target__input"
-                  label="Target Class-Name"
-                  onChange={handleTargetChange}
-                />
-                <TextField
-                  size="small"
-                  variant="outlined"
-                  className="target__input"
-                  label="test_size = 0.25"
-                  onChange={(e) => setTestSize(e.target.value)}
-                />
               </div>
             </Accordion>
           </div>

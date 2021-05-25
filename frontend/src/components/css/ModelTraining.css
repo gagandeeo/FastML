@@ -70,8 +70,7 @@ input:focus + label {
   flex-direction: column;
 }
 .target__input {
-  margin-top: 15px !important;
-  width: auto;
+  width: 100%;
   text-align: center;
 }
 .param__slider {
