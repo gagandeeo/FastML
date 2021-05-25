@@ -83,6 +83,9 @@ function ModelTraining(props) {
       hyper_params: props.data.hyper_params,
       targets: targets,
       test_size: testSize,
+      impute: imputer,
+      encoding: encoder,
+      scaling: scaler,
     };
     console.log(data);
     mlApiService
