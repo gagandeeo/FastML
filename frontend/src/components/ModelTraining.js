@@ -36,6 +36,7 @@ function ModelTraining(props) {
   const [encoder, setEncoder] = useState("");
   const [imputer, setImputer] = useState("");
   const [scaler, setScaler] = useState("");
+  const [modelType, setModelType] = useState("");
 
   const propTypes = {
     data: PropTypes.object,
@@ -80,6 +81,7 @@ function ModelTraining(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = {
+      model_type: modelType,
       hyper_params: props.data.hyper_params,
       targets: targets,
       test_size: testSize,
@@ -91,6 +93,7 @@ function ModelTraining(props) {
     mlApiService
       .trainModel(data)
       .then((res) => {
+        console.log(res.data);
         props.testResult(res.data);
       })
       .catch((err) => {
@@ -127,7 +130,11 @@ function ModelTraining(props) {
               )}
             </Typography>
           </AccordionSummary>
-          <ModelSelection func={setExpanded} setName={setModelName} />
+          <ModelSelection
+            func={setExpanded}
+            setType={setModelType}
+            setName={setModelName}
+          />
         </Accordion>
       </div>
       <div className="prepare__accordian">
@@ -291,11 +298,20 @@ function ModelTraining(props) {
                       /> */}
                       <input
                         onChange={(e) => {
-                          props.data.hyper_params[`${key}`] = parseInt(
-                            e.target.value
-                          );
+                          typeof props.data.hyper_params[`${key}`] != "number"
+                            ? (props.data.hyper_params[`${key}`] =
+                                e.target.value)
+                            : (props.data.hyper_params[`${key}`] = parseFloat(
+                                e.target.value
+                              ));
                         }}
-                        placeholder="default"
+                        placeholder={
+                          props.data.hyper_params[key]
+                            ? typeof props.data.hyper_params[key] != "boolean"
+                              ? props.data.hyper_params[key]
+                              : props.data.hyper_params[key].toString()
+                            : "null"
+                        }
                         type="text"
                       />
                     </div>

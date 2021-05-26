@@ -1,5 +1,31 @@
 .model__result {
   background-color: aquamarine;
   display: flex;
+  flex-direction: column;
   flex: 0.7;
+  overflow-y: scroll;
+}
+.report__view {
+  display: flex;
+  flex-direction: column;
+  flex: 0.3;
+  background-color: aliceblue;
+  margin: 5%;
+  padding: 5%;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 20px;
+  opacity: 0.83;
+}
+.report__graphview {
+  display: flex;
+  /* flex-direction: column; */
+  flex: 0.7;
+  background-color: aliceblue;
+  margin: 5%;
+  padding: 5%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  opacity: 0.83;
 }
