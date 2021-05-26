@@ -13,6 +13,9 @@ class mlApiService {
   prepareData(data) {
     return http.post("prepare-data", data);
   }
+  downloadModel() {
+    return http.get("download-model");
+  }
 }
 
 export default new mlApiService();
