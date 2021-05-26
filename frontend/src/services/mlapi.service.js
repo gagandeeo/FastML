@@ -16,6 +16,9 @@ class mlApiService {
   downloadModel() {
     return http.get("download-model");
   }
+  predictData(data) {
+    return http.post("predict", data);
+  }
 }
 
 export default new mlApiService();

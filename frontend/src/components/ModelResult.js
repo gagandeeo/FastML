@@ -5,10 +5,11 @@ import PropTypes from "prop-types";
 import "./css/ModelResult.css";
 import { Button, Typography } from "@material-ui/core";
 import Card from "@material-ui/core/Card";
-import fileDownload from "js-file-download";
 import Plot from "react-plotly.js";
 import mlapiService from "../services/mlapi.service";
-import axios from "axios";
+import Modal from "@material-ui/core/Modal";
+import ModelPredict from "./ModelPredict";
+
 const useStyles = makeStyles({
   root: {
     minWidth: 275,
@@ -27,20 +28,29 @@ const useStyles = makeStyles({
 });
 
 function ModelResult(props) {
+  const [open, setOpen] = React.useState(false);
+
+  const handleOpen = (e) => {
+    setOpen(true);
+  };
+  const handleClose = (e) => {
+    setOpen(false);
+  };
+
   const handleDownload = (e) => {
-    mlapiService
-      .downloadModel()
-      .then((response) => {
-        const file = new Blob([response.data]);
-        const fileURL = URL.createObjectURL(file);
-        let a = document.createElement("a");
-        a.href = fileURL;
-        a.download = "model.joblib";
-        a.click();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    // mlapiService
+    //   .downloadModel()
+    //   .then((response) => {
+    //     const file = new Blob([response.data]);
+    //     const fileURL = URL.createObjectURL(file);
+    //     let a = document.createElement("a");
+    //     a.href = fileURL;
+    //     a.download = "model.joblib";
+    //     a.click();
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
     // axios({
     //   url: "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
     //   method: "GET",
@@ -76,10 +86,18 @@ function ModelResult(props) {
       {props.result ? (
         <>
           <div>
-            <Button onClick={handleDownload} variant="contained" size="large">
+            <Button onClick={handleOpen} variant="contained" size="large">
               {" "}
-              Download Model
+              Predict Data
             </Button>
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="simple-modal-title"
+              aria-describedby="simple-modal-description"
+            >
+              <ModelPredict />
+            </Modal>
           </div>
           <div className="report__view">
             <Typography style={{ marginBottom: "20px" }} variant="button">
