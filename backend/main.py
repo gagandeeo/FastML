@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import aiofiles
+from fastapi.responses import FileResponse
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 import models
@@ -97,3 +98,12 @@ async def predict_data(test_req: schemas.PredictIn, db: Session = Depends(get_db
         models.DataIn.id.desc()).first()
     res = predict_model.predict(db_query.temp, test_req.x_data)[0]
     return {"prediction": res}
+
+
+@app.get("/test/download-model")
+async def download_model(db: Session = Depends(get_db)):
+    db_query = db.query(models.DataIn).order_by(
+        models.DataIn.id.desc()).first()
+    file_name = db_query.temp.split("/")
+    # return FileResponse(path=db_query.temp, filename=file_name[-1])
+    return {'url': db_query.temp}

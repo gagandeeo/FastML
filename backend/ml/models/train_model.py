@@ -135,5 +135,5 @@ class TrainModel:
 
         jblib_path = f"static/joblibs_models/{time.time()}.joblib"
         joblib.dump(self.pipeline_instance,
-                    Path.joinpath(BASE_DIR, jblib_path))
+                    Path.joinpath(BASE_DIR, jblib_path), compress=True)
         return class_metric, jblib_path
