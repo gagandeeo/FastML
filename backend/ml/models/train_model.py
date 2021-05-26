@@ -65,6 +65,12 @@ class TrainModel:
                           self.targets]].to_numpy()
         self.y = self.df[self.targets].to_numpy().reshape(-1, 1)
 
+        if(encoding not in ["string", "", None]):
+            encoder_instance = eval(f"preprocessing.{encoding}()")
+            self.y = encoder_instance.fit_transform(self.y)
+            self.pipeline_instance.steps.append(
+                ['encoder', encoder_instance])
+
         if (imputer not in ["string", "", None]):
             self.imputer_instance = eval(
                 f"impute.{imputer}(strategy='most_frequent')")
@@ -74,9 +80,6 @@ class TrainModel:
         else:
             self.df.drop(self.df.index[130:], inplace=True)
 
-        if(encoding not in ["string", "", None]):
-            encoder_instance = eval(f"preprocessing.{encoding}()")
-            self.y = encoder_instance.fit_transform(self.y)
         if(scaling not in ["string", "", None]):
             self.scaler_instance = eval(f"preprocessing.{scaling}()")
             self.X = self.scaler_instance.fit_transform(self.X)

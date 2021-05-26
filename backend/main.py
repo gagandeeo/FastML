@@ -38,7 +38,7 @@ def get_db():
 
 @app.post("/test/upload")
 async def test_upload(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    print(type(file))
+    # print(type(file))
     async with aiofiles.open("./static/data/{}".format(file.filename), "wb") as out_file:
         content = await file.read()
         await out_file.write(content)
@@ -65,7 +65,6 @@ async def test_select_model(model_name: str, db: Session = Depends(get_db)):
 
 @app.post("/test/train-model")
 async def test_train_model(properties: schemas.TrainModelIn, db: Session = Depends(get_db)):
-    # print(properties)
     db_query = db.query(models.DataIn).order_by(
         models.DataIn.id.desc()).first()
     ml_model = train_model.TrainModel(
@@ -93,11 +92,19 @@ async def test_upload(properties: schemas.UploadData, db: Session = Depends(get_
 
 
 @app.post("/test/predict")
-async def predict_data(test_req: schemas.PredictIn, db: Session = Depends(get_db)):
+async def predict_data(file: UploadFile = File(...), db: Session = Depends(get_db)):
+
+    async with aiofiles.open("./static/predict_data/{}".format(file.filename), "wb") as out_file:
+        content = await file.read()
+        await out_file.write(content)
+    url = str("static/predict_data/"+file.filename)
+
     db_query = db.query(models.DataIn).order_by(
         models.DataIn.id.desc()).first()
-    res = predict_model.predict(db_query.temp, test_req.x_data)[0]
-    return {"prediction": res}
+    pred_path = predict_model.predict(url, db_query.temp)
+    file_name = pred_path.split("/")
+    return FileResponse(path=pred_path, filename=file_name[-1])
+    # return {"prediction": pred_path}
 
 
 @app.get("/test/download-model")
