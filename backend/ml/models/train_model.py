@@ -61,8 +61,11 @@ class TrainModel:
 
     def prepare_data(self, dropna=True, imputer=None, encoding=None, scaling=None):
 
-        self.X = self.df[[c for c in self.df.columns if c !=
-                          self.targets]].to_numpy()
+        features = [c for c in self.df.columns if c != self.targets]
+        self.pipeline_instance.steps.append(
+            ['features', features])
+
+        self.X = self.df[features].to_numpy()
         self.y = self.df[self.targets].to_numpy().reshape(-1, 1)
 
         if(encoding not in ["string", "", None]):

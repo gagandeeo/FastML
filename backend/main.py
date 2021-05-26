@@ -104,7 +104,7 @@ async def predict_data(file: UploadFile = File(...), db: Session = Depends(get_d
     pred_path = predict_model.predict(url, db_query.temp)
     file_name = pred_path.split("/")
     return FileResponse(path=pred_path, filename=file_name[-1])
-    # return {"prediction": pred_path}
+    # return {"prediction": "pred_path"}
 
 
 @app.get("/test/download-model")
