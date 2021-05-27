@@ -1,16 +1,16 @@
-import { POST_TEST } from "../actions/types";
+import { LOAD_RESULT } from "../actions/types";
+
 const initialState = {
-  test: null,
+  load: { isLoading: false },
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case POST_TEST:
+    case LOAD_RESULT:
       return {
         ...state,
-        test: action.payload,
+        load: action.payload,
       };
-
     default:
       return state;
   }

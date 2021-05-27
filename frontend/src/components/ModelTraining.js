@@ -5,28 +5,32 @@ import { connect } from "react-redux";
 import Divider from "@material-ui/core/Divider";
 import mlApiService from "../services/mlapi.service";
 import { testResult } from "../redux/actions/testResult";
+import { loadResult } from "../redux/actions/loadResult";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ModelSelection from "./ModelSelection";
 import {
+  Button,
   FormControl,
-  Input,
   InputLabel,
   MenuItem,
   Select,
-  Slider,
   TextField,
 } from "@material-ui/core";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import { makeStyles } from "@material-ui/core/styles";
 
-function valuetext(value) {
-  return `${value}°C`;
-}
+const useStyles = makeStyles({
+  root: {
+    width: "50%",
+    alignSelf: "center",
+    borderRadius: "100px",
+  },
+});
 
 function ModelTraining(props) {
-  const params = [];
   const [expanded, setExpanded] = React.useState(false);
   const [fileName, setFileName] = useState(null);
   const [prepare, setPrepare] = useState(true);
@@ -38,28 +42,55 @@ function ModelTraining(props) {
   const [scaler, setScaler] = useState("");
   const [modelType, setModelType] = useState("");
 
+  const classes = useStyles();
+  const [progress, setProgress] = React.useState(0);
+  const [buffer, setBuffer] = React.useState(10);
   const propTypes = {
     data: PropTypes.object,
+    loadResult: PropTypes.func.isRequired,
     testResult: PropTypes.func.isRequired,
   };
+
+  const progressRef = React.useRef(() => {});
+  React.useEffect(() => {
+    progressRef.current = () => {
+      if (progress > 100) {
+        setProgress(0);
+        setBuffer(10);
+      } else {
+        const diff = Math.random() * 10;
+        const diff2 = Math.random() * 10;
+        setProgress(progress + diff);
+        setBuffer(progress + diff + diff2);
+      }
+    };
+  });
+
+  const handleTimer = () => {
+    const timer = setInterval(() => {
+      progressRef.current();
+    }, 500);
+  };
+
   const handleTargetChange = (e) => {
     e.preventDefault();
     setTargets(e.target.value);
   };
-  const handleLoadData = (e) => {
+  const handleLoadData = async (e) => {
     e.preventDefault();
+    progressRef.current();
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
     console.log(e.target.files[0]);
-    mlApiService
-      .uploadData(formData)
-      .then((res) => {
+    try {
+      await mlApiService.uploadData(formData).then((res) => {
         console.log(res);
         setFileName(e.target.files[0]);
-      })
-      .catch((err) => {
-        console.log(err);
       });
+      handleTimer();
+    } catch (err) {
+      console.log(err);
+    }
   };
   const handlePrepareChange = (e) => {
     e.preventDefault();
@@ -78,8 +109,9 @@ function ModelTraining(props) {
       .catch((err) => console.log(err));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    props.loadResult({ isLoading: true });
     const data = {
       model_type: modelType,
       hyper_params: props.data.hyper_params,
@@ -90,15 +122,15 @@ function ModelTraining(props) {
       scaling: scaler,
     };
     console.log(data);
-    mlApiService
-      .trainModel(data)
-      .then((res) => {
-        console.log(res.data);
+    try {
+      await mlApiService.trainModel(data).then((res) => {
         props.testResult(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
+        console.log(res.data);
+        props.loadResult({ isLoading: false });
       });
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <div className="model__training">
@@ -109,12 +141,28 @@ function ModelTraining(props) {
           type="file"
           onChange={handleLoadData}
         />
-        <label htmlFor="file">Load Data</label>
-        {fileName ? (
-          <p>
-            {fileName.name} - {(fileName.size / 1000).toFixed(2) + "KB"}
-          </p>
-        ) : null}
+        <label htmlFor="file">
+          {fileName ? (
+            <p style={{ color: "white", margin: "8px 0px" }}>
+              {fileName.name} - {(fileName.size / 1000).toFixed(2) + "KB"}
+            </p>
+          ) : (
+            <>
+              {" "}
+              {progress ? (
+                <div className={classes.root}>
+                  <LinearProgress
+                    variant="buffer"
+                    value={progress}
+                    valueBuffer={buffer}
+                  />
+                </div>
+              ) : (
+                "Load Data"
+              )}
+            </>
+          )}
+        </label>
       </div>
       <div className="prepare__accordian">
         <Accordion>
@@ -122,7 +170,7 @@ function ModelTraining(props) {
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1a-content"
           >
-            <Typography>
+            <Typography component={"span"}>
               {modelName ? (
                 <label>{modelName}</label>
               ) : (
@@ -147,128 +195,129 @@ function ModelTraining(props) {
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1a-content"
           >
-            <Typography>Train Model</Typography>
+            <Typography component={"span"}>Train Model</Typography>
           </AccordionSummary>
-          <div className="prepare__accordian">
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-              >
-                <Typography>Prepare Training Data</Typography>
-              </AccordionSummary>
-              <div className="prepare__accdetails">
-                <div className="prepare__options" style={{ width: "80%" }}>
-                  <input
-                    style={{ marginLeft: "24%" }}
-                    type="checkbox"
-                    checked={prepare}
-                    onChange={handlePrepareChange}
-                  />
-                  <label style={{ marginRight: "25%" }}>DropNa</label>
-                </div>
-
-                <div className="prepare__options">
-                  <FormControl variant="filled" style={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-filled-label">
-                      Imputer-Name
-                    </InputLabel>
-                    <Select
-                      style={{ width: "100%" }}
-                      labelId="demo-simple-select-filled-label"
-                      id="demo-simple-select-filled"
-                      variant="filled"
-                      autoWidth={true}
-                      value={imputer}
-                      onChange={(e) => setImputer(e.target.value)}
-                    >
-                      <MenuItem value="">
-                        <em>None</em>
-                      </MenuItem>
-                      <MenuItem value={"SimpleImputer"}>SimpleImputer</MenuItem>
-                      <MenuItem value={"IterativeImputer"}>
-                        IterativeImputer
-                      </MenuItem>
-                      <MenuItem value={"MissingIndicator"}>
-                        MissingIndicator
-                      </MenuItem>
-                      <MenuItem value={"KNNImputer"}>KNNImputer</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="prepare__options">
-                  <FormControl variant="filled" style={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-filled-label">
-                      Encoder-Name
-                    </InputLabel>
-                    <Select
-                      style={{ width: "100%" }}
-                      labelId="demo-simple-select-filled-label"
-                      id="demo-simple-select-filled"
-                      variant="filled"
-                      autoWidth={true}
-                      value={encoder}
-                      onChange={(e) => setEncoder(e.target.value)}
-                    >
-                      <MenuItem value="">
-                        <em>None</em>
-                      </MenuItem>
-                      <MenuItem value={"OrdinalEncoder"}>
-                        OrdinalEncoder
-                      </MenuItem>
-                      <MenuItem value={"OneHotEncoder"}>OneHotEncoder</MenuItem>
-                      <MenuItem value={"LabelEncoder"}>LabelEncoder</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="prepare__options">
-                  <FormControl variant="filled" style={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-filled-label">
-                      Scaler-Name
-                    </InputLabel>
-                    <Select
-                      style={{ width: "100%" }}
-                      labelId="demo-simple-select-filled-label"
-                      id="demo-simple-select-filled"
-                      variant="filled"
-                      autoWidth={true}
-                      value={scaler}
-                      onChange={(e) => setScaler(e.target.value)}
-                    >
-                      <MenuItem value="">
-                        <em>None</em>
-                      </MenuItem>
-                      <MenuItem value={"MinMaxScaler"}>MinMaxScaler</MenuItem>
-                      <MenuItem value={"StandardScaler"}>
-                        StandardScaler
-                      </MenuItem>
-                      <MenuItem value={"MaxAbsScaler"}>MaxAbsScaler</MenuItem>
-                      <MenuItem value={"RobustScaler"}>RobustScaler</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="prepare__options">
-                  <TextField
-                    size="small"
-                    variant="outlined"
-                    className="target__input"
-                    label="Target Class-Name"
-                    onChange={handleTargetChange}
-                  />
-                </div>
-                <div className="prepare__options">
-                  <TextField
-                    size="small"
-                    variant="outlined"
-                    className="target__input"
-                    label="test_size = 0.25"
-                    onChange={(e) => setTestSize(e.target.value)}
-                  />
-                </div>
+          <Divider light />
+          {/* <div className="prepare__accordian"> */}
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+            >
+              <Typography component={"span"}>Prepare Training Data</Typography>
+            </AccordionSummary>
+            <Divider
+              style={{ backgroundColor: "gray", height: "2px" }}
+              variant="middle"
+            />
+            <div className="prepare__accdetails">
+              <div className="prepare__options" style={{ width: "80%" }}>
+                <input
+                  style={{ marginLeft: "24%" }}
+                  type="checkbox"
+                  checked={prepare}
+                  onChange={handlePrepareChange}
+                />
+                <label style={{ marginRight: "25%" }}>DropNa</label>
               </div>
-            </Accordion>
-          </div>
-          <Divider />
+
+              <div className="prepare__options">
+                <FormControl variant="filled" style={{ width: "100%" }}>
+                  <InputLabel id="demo-simple-select-filled-label">
+                    Imputer-Name
+                  </InputLabel>
+                  <Select
+                    style={{ width: "100%" }}
+                    labelId="demo-simple-select-filled-label"
+                    id="demo-simple-select-filled"
+                    variant="filled"
+                    autoWidth={true}
+                    value={imputer}
+                    onChange={(e) => setImputer(e.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value={"SimpleImputer"}>SimpleImputer</MenuItem>
+                    <MenuItem value={"IterativeImputer"}>
+                      IterativeImputer
+                    </MenuItem>
+                    <MenuItem value={"MissingIndicator"}>
+                      MissingIndicator
+                    </MenuItem>
+                    <MenuItem value={"KNNImputer"}>KNNImputer</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="prepare__options">
+                <FormControl variant="filled" style={{ width: "100%" }}>
+                  <InputLabel id="demo-simple-select-filled-label">
+                    Encoder-Name
+                  </InputLabel>
+                  <Select
+                    style={{ width: "100%" }}
+                    labelId="demo-simple-select-filled-label"
+                    id="demo-simple-select-filled"
+                    variant="filled"
+                    autoWidth={true}
+                    value={encoder}
+                    onChange={(e) => setEncoder(e.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value={"OrdinalEncoder"}>OrdinalEncoder</MenuItem>
+                    <MenuItem value={"OneHotEncoder"}>OneHotEncoder</MenuItem>
+                    <MenuItem value={"LabelEncoder"}>LabelEncoder</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="prepare__options">
+                <FormControl variant="filled" style={{ width: "100%" }}>
+                  <InputLabel id="demo-simple-select-filled-label">
+                    Scaler-Name
+                  </InputLabel>
+                  <Select
+                    style={{ width: "100%" }}
+                    labelId="demo-simple-select-filled-label"
+                    id="demo-simple-select-filled"
+                    variant="filled"
+                    autoWidth={true}
+                    value={scaler}
+                    onChange={(e) => setScaler(e.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value={"MinMaxScaler"}>MinMaxScaler</MenuItem>
+                    <MenuItem value={"StandardScaler"}>StandardScaler</MenuItem>
+                    <MenuItem value={"MaxAbsScaler"}>MaxAbsScaler</MenuItem>
+                    <MenuItem value={"RobustScaler"}>RobustScaler</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="prepare__options">
+                <TextField
+                  size="small"
+                  variant="outlined"
+                  className="target__input"
+                  label="Target Class-Name"
+                  onChange={handleTargetChange}
+                />
+              </div>
+              <div className="prepare__options">
+                <TextField
+                  size="small"
+                  variant="outlined"
+                  className="target__input"
+                  label="test_size = 0.25"
+                  onChange={(e) => setTestSize(e.target.value)}
+                />
+              </div>
+            </div>
+          </Accordion>
+          {/* </div> */}
+          <Divider light />
           {props.data ? (
             <form onSubmit={(e) => handleSubmit(e)} className="training__form">
               <Accordion>
@@ -276,26 +325,16 @@ function ModelTraining(props) {
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
                 >
-                  <Typography>Set HyperParams</Typography>
+                  <Typography component={"span"}>Set HyperParams</Typography>
                 </AccordionSummary>
+                <Divider
+                  style={{ backgroundColor: "gray", height: "2px" }}
+                  variant="middle"
+                />
                 {Object.keys(props.data.hyper_params).map((key, index) => {
                   return (
                     <div className="form__input" key={index}>
                       <label>{key}</label>
-                      {/* <Slider
-                        className="param__slider"
-                        // getAriaValueText={valuetext}
-                        aria-labelledby="continuous-slider"
-                        valueLabelDisplay="auto"
-                        step={1}
-                        min={0}
-                        max={110}
-                        onChange={(e) => {
-                          props.data.hyper_params[`${key}`] = parseInt(
-                            e.target.value
-                          );
-                        }}
-                      /> */}
                       <input
                         onChange={(e) => {
                           typeof props.data.hyper_params[`${key}`] != "number"
@@ -318,8 +357,15 @@ function ModelTraining(props) {
                   );
                 })}
               </Accordion>
-
-              <button type="submit">Submit</button>
+              <Button
+                variant="contained"
+                color="secondary"
+                className="submit__button"
+                type="submit"
+              >
+                {" "}
+                Train
+              </Button>
             </form>
           ) : null}
         </Accordion>
@@ -333,6 +379,7 @@ const mapStateToProps = (state) => ({
 });
 const mapDispatchToProps = {
   testResult,
+  loadResult,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModelTraining);

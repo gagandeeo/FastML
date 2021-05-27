@@ -1,4 +1,5 @@
 .app {
   background-color: gray;
   height: 100vh;
+  --mtheme-bg: rgb(51, 51, 51);
 }

@@ -2,17 +2,19 @@
   display: flex;
   flex-direction: column;
   height: 50vh;
-  background-color: blueviolet;
+  padding: 10px;
+  background-color: rgb(73, 72, 72);
   align-items: center;
   justify-content: space-between;
   overflow-y: scroll;
+  border-radius: 10px;
 }
 
 .model__list {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: aliceblue;
+  background-color: white;
   padding: 10px;
   margin-top: 5px;
   margin-bottom: 5px;
@@ -31,7 +33,8 @@
   color: aqua;
 }
 .model__list:active {
-  background-color: rgb(255, 0, 212);
+  background-color: rgb(128, 75, 75);
+  color: white;
 }
 .model__list > label:hover {
   overflow: visible;

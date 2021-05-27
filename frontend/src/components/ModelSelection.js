@@ -18,8 +18,8 @@ function TabPanel(props) {
     <div
       role="tabpanel"
       hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
+      id={`scrollable-auto-tabpanel-${index}`}
+      aria-labelledby={`scrollable-auto-tab-${index}`}
       {...other}
     >
       {value === index && (
@@ -39,14 +39,15 @@ TabPanel.propTypes = {
 
 function a11yProps(index) {
   return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
+    id: `scrollable-auto-tab-${index}`,
+    "aria-controls": `scrollable-auto-tabpanel-${index}`,
   };
 }
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
+    width: "100%",
     backgroundColor: theme.palette.background.paper,
   },
 }));
@@ -134,16 +135,19 @@ function ModelSelection(props) {
 
   return (
     <div className={classes.root}>
-      <AppBar position="relative" style={{ backgroundColor: "black" }}>
+      <AppBar position="relative" style={{ backgroundColor: "#212C3D" }}>
         <Tabs
           value={value}
           onChange={handleChange}
-          aria-label="simple tabs example"
-          style={{ padding: "0px" }}
+          indicatorColor="secondary"
+          textColor="white"
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="scrollable auto tabs example"
         >
           <Tab label="Regression" {...a11yProps(0)} />
           <Tab label="Classification" {...a11yProps(1)} />
-          <Tab label="Cluster" {...a11yProps(2)} />
+          <Tab label="Cluster" {...a11yProps(2)} disabled={true} />
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={0}>
