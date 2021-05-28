@@ -24,8 +24,16 @@ BASE_DIR = Path(__file__).resolve(strict=True).parents[2]
 
 class TrainModel:
 
-    def __init__(self, data=None, targets=None, model_name=None, model_type=None):
-        self.df = pd.read_csv(Path.joinpath(BASE_DIR, data))
+    def __init__(self, data=None, targets=None, model_name=None, usecols=None, model_type=None):
+        if (usecols not in ["string", "", None]):
+            usecols = usecols.split(',')
+            if (targets not in usecols and targets not in ["string", "", None]):
+                usecols.append(targets)
+            self.df = pd.read_csv(Path.joinpath(
+                BASE_DIR, data), usecols=usecols)
+        else:
+            self.df = pd.read_csv(Path.joinpath(
+                BASE_DIR, data), usecols=None)
         self.model_name = model_name
         self.model_type = model_type
         self.model_instance = None

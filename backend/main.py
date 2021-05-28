@@ -75,7 +75,7 @@ async def test_train_model(properties: schemas.TrainModelIn, db: Session = Depen
         db_query = db.query(models.DataIn).order_by(
             models.DataIn.id.desc()).first()
         ml_model = train_model.TrainModel(
-            data=db_query.url, targets=properties.targets, model_name=db_query.model_name, model_type=properties.model_type)
+            data=db_query.url, targets=properties.targets, model_name=db_query.model_name, usecols=properties.usecols, model_type=properties.model_type)
         ml_model.prepare_data(dropna=properties.dropna, imputer=properties.impute,
                               encoding=properties.encoding, scaling=properties.scaling)
         score, jblib_path = ml_model.train(

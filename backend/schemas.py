@@ -22,6 +22,7 @@ class HyperParams(BaseModel):
 class TrainModelIn(BaseModel):
     model_type: int
     hyper_params: Optional[Dict] = {}
+    usecols: str
     targets: str
     test_size: float = 0.25
     dropna: bool = True

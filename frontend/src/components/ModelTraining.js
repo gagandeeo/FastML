@@ -36,6 +36,7 @@ const useStyles = makeStyles({
 function ModelTraining(props) {
   const [expanded, setExpanded] = React.useState(false);
   const [fileName, setFileName] = useState(null);
+  const [usecols, setUsecols] = useState(null);
   const [prepare, setPrepare] = useState(true);
   const [targets, setTargets] = useState("");
   const [testSize, setTestSize] = useState(0.25);
@@ -110,6 +111,7 @@ function ModelTraining(props) {
     const data = {
       model_type: modelType,
       hyper_params: props.data.hyper_params,
+      usecols: usecols,
       targets: targets,
       test_size: testSize,
       impute: imputer,
@@ -323,6 +325,15 @@ function ModelTraining(props) {
                   className="target__input"
                   label="Target Class-Name"
                   onChange={handleTargetChange}
+                />
+              </div>
+              <div className="prepare__options">
+                <TextField
+                  size="small"
+                  variant="outlined"
+                  className="target__input"
+                  label="Cols to use (col1_Name, col2_Name,..)"
+                  onChange={(e) => setUsecols(e.target.value)}
                 />
               </div>
               <div className="prepare__options">

@@ -80,8 +80,8 @@ input:focus + label {
   flex-direction: column;
 }
 .target__input {
-  width: 100%;
   text-align: center;
+  width: 100%;
 }
 .param__slider {
   width: 40% !important;
