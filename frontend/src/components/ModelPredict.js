@@ -21,7 +21,6 @@ function ModelPredict() {
     e.preventDefault();
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
-    console.log(e.target.files[0]);
     try {
       mlApiService.predictData(formData).then((response) => {
         // console.log(response);
@@ -35,7 +34,7 @@ function ModelPredict() {
       });
       handleTimer();
     } catch (err) {
-      console.log(err);
+      alert("Try again!");
     }
   };
 
@@ -85,7 +84,7 @@ function ModelPredict() {
                   />
                 </div>
               ) : (
-                "Load Data"
+                "Load Data to predict and Download them"
               )}
             </>
           )}

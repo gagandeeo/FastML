@@ -11,6 +11,8 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ModelSelection from "./ModelSelection";
+import Modal from "@material-ui/core/Modal";
+
 import {
   Button,
   FormControl,
@@ -21,6 +23,7 @@ import {
 } from "@material-ui/core";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { makeStyles } from "@material-ui/core/styles";
+import ErrorHandler from "./ErrorHandler";
 
 const useStyles = makeStyles({
   root: {
@@ -34,14 +37,21 @@ function ModelTraining(props) {
   const [expanded, setExpanded] = React.useState(false);
   const [fileName, setFileName] = useState(null);
   const [prepare, setPrepare] = useState(true);
-  const [targets, setTargets] = useState(null);
+  const [targets, setTargets] = useState("");
   const [testSize, setTestSize] = useState(0.25);
   const [modelName, setModelName] = useState(null);
   const [encoder, setEncoder] = useState("");
   const [imputer, setImputer] = useState("");
   const [scaler, setScaler] = useState("");
   const [modelType, setModelType] = useState("");
+  const [open, setOpen] = React.useState(false);
 
+  const handleOpen = (e) => {
+    setOpen(true);
+  };
+  const handleClose = (e) => {
+    setOpen(false);
+  };
   const classes = useStyles();
   const [progress, setProgress] = React.useState(0);
   const [buffer, setBuffer] = React.useState(10);
@@ -81,37 +91,22 @@ function ModelTraining(props) {
     progressRef.current();
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
-    console.log(e.target.files[0]);
     try {
       await mlApiService.uploadData(formData).then((res) => {
-        console.log(res);
         setFileName(e.target.files[0]);
       });
       handleTimer();
     } catch (err) {
-      console.log(err);
+      alert("Load Data Again");
     }
   };
   const handlePrepareChange = (e) => {
     e.preventDefault();
     setPrepare(e.target.checked);
   };
-  const handlePrepareData = (e) => {
-    e.preventDefault();
-    const data = {
-      dropna: prepare,
-    };
-    mlApiService
-      .prepareData(data)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => console.log(err));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    props.loadResult({ isLoading: true });
     const data = {
       model_type: modelType,
       hyper_params: props.data.hyper_params,
@@ -122,14 +117,34 @@ function ModelTraining(props) {
       scaling: scaler,
     };
     console.log(data);
-    try {
-      await mlApiService.trainModel(data).then((res) => {
-        props.testResult(res.data);
-        console.log(res.data);
-        props.loadResult({ isLoading: false });
-      });
-    } catch (err) {
-      console.log(err);
+    if (targets) {
+      props.loadResult({ isLoading: true });
+
+      try {
+        await mlApiService.trainModel(data).then((res) => {
+          props.testResult(res.data);
+          props.loadResult({ isLoading: false });
+        });
+      } catch (err) {
+        const status = err.response.status;
+        if (status === 500) {
+          props.loadResult({
+            isLoading: false,
+            error: status,
+            msg: err.response.data.detail,
+          });
+          alert(err.response.data.detail);
+        } else if (status === 422) {
+          props.loadResult({
+            isLoading: false,
+            error: status,
+            msg: "verify inputs",
+          });
+          alert("verify inputs");
+        }
+      }
+    } else {
+      alert("Please fill mandatory inputs");
     }
   };
   return (
@@ -298,6 +313,11 @@ function ModelTraining(props) {
               </div>
               <div className="prepare__options">
                 <TextField
+                  value={targets}
+                  required
+                  id="standard-required"
+                  label="Required"
+                  error={targets ? false : true}
                   size="small"
                   variant="outlined"
                   className="target__input"

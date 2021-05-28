@@ -38,28 +38,9 @@ function ModelResult(props) {
     result: PropTypes.object,
     load: PropTypes.object,
   };
-  const handleDownload = (e) => {
-    // mlapiService
-    //   .downloadModel()
-    //   .then((response) => {
-    //     const file = new Blob([response.data]);
-    //     const fileURL = URL.createObjectURL(file);
-    //     let a = document.createElement("a");
-    //     a.href = fileURL;
-    //     a.download = "model.joblib";
-    //     a.click();
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
-    // axios({
-    //   url: "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
-    //   method: "GET",
-    //   responseType: "blob",
-    // }).then((response) => {
-    //   fileDownload(response.data, "ap.jpg");
-    // });
-  };
+  // const handleDownload = (e) => {
+
+  // };
   const classes = useStyles();
   const bull = <span className={classes.bullet}>•</span>;
   var data = [];
@@ -211,16 +192,32 @@ function ModelResult(props) {
               ) : null}
             </>
           ) : (
-            <h3
-              style={{
-                color: "white",
-                alignSelf: "center",
-                marginTop: "35%",
-              }}
-            >
-              <p>Train To Get Result</p>
-              <p> -Ryan Blair</p>
-            </h3>
+            <>
+              {props.load.error === 500 ? (
+                <h3
+                  style={{
+                    color: "white",
+                    alignSelf: "center",
+                    justifySelf: "center",
+                    textAlign: "center",
+                    marginTop: "35%",
+                  }}
+                >
+                  {props.load.msg}
+                </h3>
+              ) : (
+                <h3
+                  style={{
+                    color: "white",
+                    alignSelf: "center",
+                    marginTop: "35%",
+                  }}
+                >
+                  <p>Train To Get Result</p>
+                  <p> -Ryan Blair</p>
+                </h3>
+              )}
+            </>
           )}
         </>
       ) : (

@@ -125,11 +125,10 @@ function ModelSelection(props) {
     mlApiService
       .selectModel(data)
       .then((res) => {
-        console.log(res.data);
         props.postTest(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        alert("Try selecting again!");
       });
   };
 
@@ -140,7 +139,7 @@ function ModelSelection(props) {
           value={value}
           onChange={handleChange}
           indicatorColor="secondary"
-          textColor="white"
+          textColor="inherit"
           variant="scrollable"
           scrollButtons="auto"
           aria-label="scrollable auto tabs example"
