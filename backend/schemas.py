@@ -1,7 +1,29 @@
 from typing import Dict, List, Text, Optional
-from fastapi import File, UploadFile
 from pydantic import BaseModel
-from pydantic.networks import HttpUrl
+
+
+class SignUp(BaseModel):
+    email: str
+    password: str
+    username: str
+
+    class Config:
+        orm_mode = True
+
+
+class SignIn(BaseModel):
+    email: str
+    password: str
+
+    class Config:
+        orm_mode = True
+
+
+# class UserIn(BaseModel):
+#     id: int
+
+#     class Config:
+#         orm_mode = True
 
 
 class UploadData(BaseModel):
@@ -29,6 +51,9 @@ class TrainModelIn(BaseModel):
     impute: Optional[str] = None
     encoding: Optional[str] = None
     scaling: Optional[str] = None
+
+    class Config:
+        orm_mode = True
 
 
 class PredictIn(BaseModel):

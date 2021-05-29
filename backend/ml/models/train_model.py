@@ -4,6 +4,7 @@ from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegress
 from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.naive_bayes import GaussianNB
+import pickle
 from sklearn.svm import SVC, SVR
 import pandas as pd
 from pathlib import Path
@@ -149,5 +150,5 @@ class TrainModel:
 
         jblib_path = f"static/joblibs_models/{time.time()}.joblib"
         joblib.dump(self.pipeline_instance,
-                    Path.joinpath(BASE_DIR, jblib_path), compress=True)
+                    Path.joinpath(BASE_DIR, jblib_path))
         return class_metric, jblib_path
