@@ -1,3 +1,4 @@
+from operator import index
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor, RandomForestClassifier, RandomForestRegressor
@@ -25,16 +26,24 @@ BASE_DIR = Path(__file__).resolve(strict=True).parents[2]
 
 class TrainModel:
 
-    def __init__(self, data=None, targets=None, model_name=None, usecols=None, model_type=None):
+    def __init__(self, data=None, targets=None, model_name=None, usecols=None, index_col=None, model_type=None):
         if (usecols not in ["string", "", None]):
             usecols = usecols.split(',')
             if (targets not in usecols and targets not in ["string", "", None]):
                 usecols.append(targets)
-            self.df = pd.read_csv(Path.joinpath(
-                BASE_DIR, data), usecols=usecols)
+            if(index_col != 10000):
+                self.df = pd.read_csv(Path.joinpath(
+                    BASE_DIR, data), usecols=usecols, index_col=index_col)
+            else:
+                self.df = pd.read_csv(Path.joinpath(
+                    BASE_DIR, data), usecols=usecols, index_col=None)
         else:
-            self.df = pd.read_csv(Path.joinpath(
-                BASE_DIR, data), usecols=None)
+            if(index_col != 10000):
+                self.df = pd.read_csv(Path.joinpath(
+                    BASE_DIR, data), usecols=None, index_col=index_col)
+            else:
+                self.df = pd.read_csv(Path.joinpath(
+                    BASE_DIR, data), usecols=None, index_col=None)
         self.model_name = model_name
         self.model_type = model_type
         self.model_instance = None
@@ -46,16 +55,19 @@ class TrainModel:
         self.targets = targets
 
     def plot_roc_curve(self, X_train, y_train, n_class):
-        fpr = np.zeros((n_class, n_class))
-        tpr = np.zeros((n_class, n_class))
-        thresh = np.zeros((n_class, n_class))
+        fpr = {}
+        tpr = {}
+        thresh = {}
         y_pred = model_selection.cross_val_predict(
             self.model_instance, X_train, y_train, cv=3, method='predict_proba')
-
         for i in range(n_class):
             fpr[i], tpr[i], thresh[i] = metrics.roc_curve(
                 y_train, y_pred[:, i], pos_label=i)
-        return fpr.tolist(), tpr.tolist()
+
+        fpr = [i.tolist() for i in fpr.values()]
+        tpr = [i.tolist() for i in tpr.values()]
+
+        return fpr, tpr
 
     def plot_learning_curves(self, X_train, y_train, X_val, y_val):
         train_errors, val_errors = [], []
@@ -114,7 +126,9 @@ class TrainModel:
             y_train_pred = self.model_instance.predict(X_train)
             conf_matrix = metrics.confusion_matrix(
                 y_train, y_train_pred).tolist()
-            fpr, tpr = self.plot_roc_curve(X_train, y_train, 3)
+            fpr, tpr = self.plot_roc_curve(
+                X_train, y_train, len(np.unique(self.y)))
+
             class_metric = {
                 'type': 1,
                 'report': metrics.classification_report(

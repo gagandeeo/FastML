@@ -11,7 +11,6 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ModelSelection from "./ModelSelection";
-import Modal from "@material-ui/core/Modal";
 
 import {
   Button,
@@ -23,7 +22,6 @@ import {
 } from "@material-ui/core";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { makeStyles } from "@material-ui/core/styles";
-import ErrorHandler from "./ErrorHandler";
 
 const useStyles = makeStyles({
   root: {
@@ -45,14 +43,29 @@ function ModelTraining(props) {
   const [imputer, setImputer] = useState("");
   const [scaler, setScaler] = useState("");
   const [modelType, setModelType] = useState("");
-  const [open, setOpen] = React.useState(false);
 
-  const handleOpen = (e) => {
-    setOpen(true);
+  const handleHyperChange = (e, key) => {
+    if (typeof props.data.hyper_params[`${key}`] == "number") {
+      props.data.hyper_params[`${key}`] = Number(e.target.value);
+    } else if (typeof props.data.hyper_params[`${key}`] == "boolean") {
+      if (e.target.value.toLowerCase() === "true") {
+        props.data.hyper_params[`${key}`] = true;
+      } else {
+        props.data.hyper_params[`${key}`] = false;
+      }
+    } else {
+      if (Number(e.target.value) != "NaN") {
+        props.data.hyper_params[`${key}`] = Number(e.target.value);
+      } else if (e.target.value.toLowerCase() === "true") {
+        props.data.hyper_params[`${key}`] = true;
+      } else if (e.target.value.toLowerCase() === "false") {
+        props.data.hyper_params[`${key}`] = true;
+      } else {
+        props.data.hyper_params[`${key}`] = e.target.value;
+      }
+    }
   };
-  const handleClose = (e) => {
-    setOpen(false);
-  };
+
   const classes = useStyles();
   const [progress, setProgress] = React.useState(0);
   const [buffer, setBuffer] = React.useState(10);
@@ -91,14 +104,17 @@ function ModelTraining(props) {
     e.preventDefault();
     progressRef.current();
     const formData = new FormData();
+    formData.append("user_id", 3);
     formData.append("file", e.target.files[0]);
     try {
       await mlApiService.uploadData(formData).then((res) => {
         setFileName(e.target.files[0]);
+        console.log(res);
       });
       handleTimer();
     } catch (err) {
-      alert("Load Data Again");
+      console.log(err);
+      // alert("Load Data Again");
     }
   };
   const handlePrepareChange = (e) => {
@@ -106,14 +122,26 @@ function ModelTraining(props) {
     setPrepare(e.target.checked);
   };
 
+  // "model_type": 1,
+  //   "hyper_params": {},
+  //   "usecols": "string",
+  //   "targets": "Flower",
+  //   "test_size": 0.25,
+  //   "dropna": true,
+  //   "impute": "string",
+  //   "encoding": "OrdinalEncoder",
+  //   "scaling": "string"
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // console.log(props.data.hyper_params);
     const data = {
       model_type: modelType,
       hyper_params: props.data.hyper_params,
       usecols: usecols,
       targets: targets,
       test_size: testSize,
+      dropna: true,
       impute: imputer,
       encoding: encoder,
       scaling: scaler,
@@ -129,6 +157,8 @@ function ModelTraining(props) {
         });
       } catch (err) {
         const status = err.response.status;
+        console.log(err);
+
         if (status === 500) {
           props.loadResult({
             isLoading: false,
@@ -367,17 +397,10 @@ function ModelTraining(props) {
                     <div className="form__input" key={index}>
                       <label>{key}</label>
                       <input
-                        onChange={(e) => {
-                          typeof props.data.hyper_params[`${key}`] != "number"
-                            ? (props.data.hyper_params[`${key}`] =
-                                e.target.value)
-                            : (props.data.hyper_params[`${key}`] = parseFloat(
-                                e.target.value
-                              ));
-                        }}
+                        onChange={(e) => handleHyperChange(e, key)}
                         placeholder={
                           props.data.hyper_params[key]
-                            ? typeof props.data.hyper_params[key] != "boolean"
+                            ? typeof props.data.hyper_params[key] !== "boolean"
                               ? props.data.hyper_params[key]
                               : props.data.hyper_params[key].toString()
                             : "null"

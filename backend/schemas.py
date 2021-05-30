@@ -19,6 +19,13 @@ class SignIn(BaseModel):
         orm_mode = True
 
 
+class SelectModel(BaseModel):
+    user_id: int
+    model_name: str
+
+    class Config:
+        orm_mode = True
+
 # class UserIn(BaseModel):
 #     id: int
 
@@ -44,7 +51,8 @@ class HyperParams(BaseModel):
 class TrainModelIn(BaseModel):
     model_type: int
     hyper_params: Optional[Dict] = {}
-    usecols: str
+    usecols: Optional[str] = None
+    index_col: Optional[int] = 10000
     targets: str
     test_size: float = 0.25
     dropna: bool = True

@@ -57,9 +57,7 @@ function ModelSelection(props) {
     {
       name: "LinearRegression",
     },
-    {
-      name: "LogisticRegression",
-    },
+
     {
       name: "SVR",
     },
@@ -78,7 +76,9 @@ function ModelSelection(props) {
     {
       name: "DecisionTreeClassifier",
     },
-
+    {
+      name: "LogisticRegression",
+    },
     {
       name: "SVC",
     },
@@ -120,6 +120,7 @@ function ModelSelection(props) {
     props.setName(name);
     console.log(name);
     const data = {
+      user_id: 3,
       model_name: name,
     };
     mlApiService
@@ -128,7 +129,8 @@ function ModelSelection(props) {
         props.postTest(res.data);
       })
       .catch((err) => {
-        alert("Try selecting again!");
+        console.log(err);
+        // alert("Try selecting again!");
       });
   };
 

@@ -1,5 +1,4 @@
-
-from fastapi import File, UploadFile, HTTPException, APIRouter
+from fastapi import File, UploadFile, HTTPException, APIRouter, Form
 import aiofiles
 from sqlalchemy import sql
 from fastapi.responses import FileResponse
@@ -22,8 +21,8 @@ def get_db():
         db.close()
 
 
-@router.post("/test/{user_id}/upload")
-async def test_upload(user_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+@router.post("/test/upload")
+async def test_upload(user_id: str = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
 
         async with aiofiles.open("./static/data/{}".format(file.filename), "wb") as out_file:
@@ -52,13 +51,13 @@ async def test_upload(user_id: int, file: UploadFile = File(...), db: Session = 
             status_code=500, detail="Data could not be loaded try again!")
 
 
-@router.get("/test/{user_id}/select-model/{model_name}", response_model=schemas.HyperParams)
-async def test_select_model(user_id: int, model_name: str, db: Session = Depends(get_db)):
+@router.post("/test/select-model/{model_name}", response_model=schemas.HyperParams)
+async def test_select_model(request: schemas.SelectModel, db: Session = Depends(get_db)):
     try:
-        hyper_params = hyperparams.get_params(model_name)
+        hyper_params = hyperparams.get_params(request.model_name)
         db_query = db.query(models.DataIn).filter(
-            models.DataIn.user_id == user_id).order_by(models.DataIn.created_at.desc()).first()
-        db_query.model_name = model_name
+            models.DataIn.user_id == request.user_id).order_by(models.DataIn.created_at.desc()).first()
+        db_query.model_name = request.model_name
         db.commit()
         return {"hyper_params": hyper_params}
     except:
@@ -69,9 +68,9 @@ async def test_select_model(user_id: int, model_name: str, db: Session = Depends
 async def test_train_model(properties: schemas.TrainModelIn, db: Session = Depends(get_db)):
     try:
         db_query = db.query(models.DataIn).order_by(
-            models.DataIn.id.desc()).first()
+            models.DataIn.created_at.desc()).first()
         ml_model = train_model.TrainModel(
-            data=db_query.url, targets=properties.targets, model_name=db_query.model_name, usecols=properties.usecols, model_type=properties.model_type)
+            data=db_query.url, targets=properties.targets, model_name=db_query.model_name, usecols=properties.usecols, index_col=properties.index_col, model_type=properties.model_type)
         ml_model.prepare_data(dropna=properties.dropna, imputer=properties.impute,
                               encoding=properties.encoding, scaling=properties.scaling)
         score, jblib_path = ml_model.train(
@@ -89,7 +88,7 @@ async def test_train_model(properties: schemas.TrainModelIn, db: Session = Depen
 @router.post("/test/prepare-data")
 async def test_upload(properties: schemas.UploadData, db: Session = Depends(get_db)):
     db_query = db.query(models.DataIn).order_by(
-        models.DataIn.id.desc()).first()
+        models.DataIn.created_at.desc()).first()
 
     prepare_data.PrepareData(db_query.url,
                              properties.dropna).prepare()
@@ -106,7 +105,7 @@ async def predict_data(file: UploadFile = File(...), db: Session = Depends(get_d
         url = str("static/predict_data/"+file.filename)
 
         db_query = db.query(models.DataIn).order_by(
-            models.DataIn.id.desc()).first()
+            models.DataIn.created_at.desc()).first()
         pred_path = predict_model.predict(url, db_query.temp)
         file_name = pred_path.split("/")
         return FileResponse(path=pred_path, filename=file_name[-1])
@@ -119,6 +118,6 @@ async def predict_data(file: UploadFile = File(...), db: Session = Depends(get_d
 @router.get("/test/download-model")
 async def download_model(db: Session = Depends(get_db)):
     db_query = db.query(models.DataIn).order_by(
-        models.DataIn.id.desc()).first()
+        models.DataIn.created_at.desc()).first()
     file_name = db_query.temp.split("/")
     return FileResponse(path=db_query.temp, filename=file_name[-1])

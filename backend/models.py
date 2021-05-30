@@ -1,7 +1,6 @@
 from sqlalchemy import Column, String, Integer, DateTime, sql
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql.functions import current_timestamp
 from sqlalchemy.sql.schema import ForeignKey
 
 Base = declarative_base()

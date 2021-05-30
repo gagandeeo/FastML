@@ -5,7 +5,7 @@ class mlApiService {
     return http.post("upload", data);
   }
   selectModel(data) {
-    return http.get(`select-model/${data.model_name}`);
+    return http.post(`select-model/${data.model_name}`, data);
   }
   trainModel(data) {
     return http.post("train-model", data);
