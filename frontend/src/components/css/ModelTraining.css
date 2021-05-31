@@ -92,3 +92,6 @@ input:focus + label {
 .submit__button:hover {
   border-bottom: 2px solid aqua !important;
 }
+.accordian__attr > .Mui-disabled {
+  background-color: darkgray;
+}

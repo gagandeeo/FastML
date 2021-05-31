@@ -22,7 +22,7 @@ def get_db():
 
 
 @router.post("/test/upload")
-async def test_upload(user_id: str = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def test_upload(user_id: int = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
 
         async with aiofiles.open("./static/data/{}".format(file.filename), "wb") as out_file:
@@ -67,8 +67,8 @@ async def test_select_model(request: schemas.SelectModel, db: Session = Depends(
 @router.post("/test/train-model")
 async def test_train_model(properties: schemas.TrainModelIn, db: Session = Depends(get_db)):
     try:
-        db_query = db.query(models.DataIn).order_by(
-            models.DataIn.created_at.desc()).first()
+        db_query = db.query(models.DataIn).filter(models.DataIn.user_id ==
+                                                  properties.user_id).order_by(models.DataIn.created_at.desc()).first()
         ml_model = train_model.TrainModel(
             data=db_query.url, targets=properties.targets, model_name=db_query.model_name, usecols=properties.usecols, index_col=properties.index_col, model_type=properties.model_type)
         ml_model.prepare_data(dropna=properties.dropna, imputer=properties.impute,
@@ -87,8 +87,8 @@ async def test_train_model(properties: schemas.TrainModelIn, db: Session = Depen
 
 @router.post("/test/prepare-data")
 async def test_upload(properties: schemas.UploadData, db: Session = Depends(get_db)):
-    db_query = db.query(models.DataIn).order_by(
-        models.DataIn.created_at.desc()).first()
+    db_query = db.query(models.DataIn).filter(models.DataIn.user_id ==
+                                              properties.user_id).order_by(models.DataIn.created_at.desc()).first()
 
     prepare_data.PrepareData(db_query.url,
                              properties.dropna).prepare()
@@ -97,15 +97,15 @@ async def test_upload(properties: schemas.UploadData, db: Session = Depends(get_
 
 
 @router.post("/test/predict")
-async def predict_data(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def predict_data(user_id: int = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
         async with aiofiles.open("./static/predict_data/{}".format(file.filename), "wb") as out_file:
             content = await file.read()
             await out_file.write(content)
         url = str("static/predict_data/"+file.filename)
 
-        db_query = db.query(models.DataIn).order_by(
-            models.DataIn.created_at.desc()).first()
+        db_query = db.query(models.DataIn).filter(models.DataIn.user_id ==
+                                                  user_id).order_by(models.DataIn.created_at.desc()).first()
         pred_path = predict_model.predict(url, db_query.temp)
         file_name = pred_path.split("/")
         return FileResponse(path=pred_path, filename=file_name[-1])
@@ -116,8 +116,8 @@ async def predict_data(file: UploadFile = File(...), db: Session = Depends(get_d
 
 
 @router.get("/test/download-model")
-async def download_model(db: Session = Depends(get_db)):
-    db_query = db.query(models.DataIn).order_by(
-        models.DataIn.created_at.desc()).first()
+async def download_model(request: schemas.DownloadData, db: Session = Depends(get_db)):
+    db_query = db.query(models.DataIn).filter(models.DataIn.user_id ==
+                                              request.user_id).order_by(models.DataIn.created_at.desc()).first()
     file_name = db_query.temp.split("/")
     return FileResponse(path=db_query.temp, filename=file_name[-1])

@@ -33,7 +33,12 @@ class SelectModel(BaseModel):
 #         orm_mode = True
 
 
+class DownloadData(BaseModel):
+    user_id: int
+
+
 class UploadData(BaseModel):
+    user_id: int
     dropna: bool
     # targets: str
 
@@ -49,6 +54,7 @@ class HyperParams(BaseModel):
 
 
 class TrainModelIn(BaseModel):
+    user_id: int
     model_type: int
     hyper_params: Optional[Dict] = {}
     usecols: Optional[str] = None

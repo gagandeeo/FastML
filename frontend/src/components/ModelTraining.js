@@ -35,6 +35,7 @@ function ModelTraining(props) {
   const [expanded, setExpanded] = React.useState(false);
   const [fileName, setFileName] = useState(null);
   const [usecols, setUsecols] = useState(null);
+  const [indexCol, setIndexCol] = useState(null);
   const [prepare, setPrepare] = useState(true);
   const [targets, setTargets] = useState("");
   const [testSize, setTestSize] = useState(0.25);
@@ -43,6 +44,7 @@ function ModelTraining(props) {
   const [imputer, setImputer] = useState("");
   const [scaler, setScaler] = useState("");
   const [modelType, setModelType] = useState("");
+  const [allow, setAllow] = useState(true);
 
   const handleHyperChange = (e, key) => {
     if (typeof props.data.hyper_params[`${key}`] == "number") {
@@ -109,6 +111,7 @@ function ModelTraining(props) {
     try {
       await mlApiService.uploadData(formData).then((res) => {
         setFileName(e.target.files[0]);
+        setAllow(false);
         console.log(res);
       });
       handleTimer();
@@ -121,17 +124,6 @@ function ModelTraining(props) {
     e.preventDefault();
     setPrepare(e.target.checked);
   };
-
-  // "model_type": 1,
-  //   "hyper_params": {},
-  //   "usecols": "string",
-  //   "targets": "Flower",
-  //   "test_size": 0.25,
-  //   "dropna": true,
-  //   "impute": "string",
-  //   "encoding": "OrdinalEncoder",
-  //   "scaling": "string"
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     // console.log(props.data.hyper_params);
@@ -139,9 +131,10 @@ function ModelTraining(props) {
       model_type: modelType,
       hyper_params: props.data.hyper_params,
       usecols: usecols,
+      index_col: indexCol,
       targets: targets,
       test_size: testSize,
-      dropna: true,
+      dropna: prepare,
       impute: imputer,
       encoding: encoder,
       scaling: scaler,
@@ -212,7 +205,7 @@ function ModelTraining(props) {
         </label>
       </div>
       <div className="prepare__accordian">
-        <Accordion>
+        <Accordion disabled={allow} className="accordian__attr">
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1a-content"
@@ -234,6 +227,8 @@ function ModelTraining(props) {
       </div>
       <div className="prepare__accordian">
         <Accordion
+          disabled={allow}
+          className="accordian__attr"
           expanded={expanded}
           onChange={(e) => setExpanded(!expanded)}
           style={{ display: "flex", flexDirection: "column" }}
@@ -364,6 +359,15 @@ function ModelTraining(props) {
                   className="target__input"
                   label="Cols to use (col1_Name, col2_Name,..)"
                   onChange={(e) => setUsecols(e.target.value)}
+                />
+              </div>
+              <div className="prepare__options">
+                <TextField
+                  size="small"
+                  variant="outlined"
+                  className="target__input"
+                  label="Index-col=None"
+                  onChange={(e) => setIndexCol(parseInt(e.target.value))}
                 />
               </div>
               <div className="prepare__options">
