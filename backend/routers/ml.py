@@ -8,6 +8,7 @@ from ml.models import hyperparams, train_model, predict_model
 from database import SessionLocal
 import schemas
 import models
+from routers.users import oauth2_scheme
 from ml import prepare_data
 
 router = APIRouter()
@@ -22,7 +23,7 @@ def get_db():
 
 
 @router.post("/test/upload")
-async def test_upload(user_id: int = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def test_upload(user_id: int = Form(...), file: UploadFile = File(...), token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
 
         async with aiofiles.open("./static/data/{}".format(file.filename), "wb") as out_file:

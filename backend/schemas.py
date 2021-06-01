@@ -11,12 +11,29 @@ class SignUp(BaseModel):
         orm_mode = True
 
 
+class UserOut(BaseModel):
+    user_id: int
+    email: str
+
+    class Config:
+        orm_mode = True
+
+
 class SignIn(BaseModel):
     email: str
     password: str
 
     class Config:
         orm_mode = True
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
 
 
 class SelectModel(BaseModel):
@@ -26,12 +43,6 @@ class SelectModel(BaseModel):
     class Config:
         orm_mode = True
 
-# class UserIn(BaseModel):
-#     id: int
-
-#     class Config:
-#         orm_mode = True
-
 
 class DownloadData(BaseModel):
     user_id: int
@@ -40,7 +51,6 @@ class DownloadData(BaseModel):
 class UploadData(BaseModel):
     user_id: int
     dropna: bool
-    # targets: str
 
 
 class DataIn(BaseModel):

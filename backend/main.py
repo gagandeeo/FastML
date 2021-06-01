@@ -4,9 +4,7 @@ import models
 from database import engine
 from routers import ml, users
 
-
 models.Base.metadata.create_all(bind=engine)
-
 
 app = FastAPI()
 app.add_middleware(
