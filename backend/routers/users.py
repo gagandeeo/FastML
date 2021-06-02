@@ -16,7 +16,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/test/login")
 
 
 def get_db():
@@ -60,7 +60,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-@router.post("/token", response_model=schemas.Token)
+@router.post("/test/login")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
@@ -73,10 +73,16 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    resp_user = {
+        "user_id": user.id,
+        "username": user.username,
+        "email": user.email,
+    }
+    return {"user": resp_user, "token": access_token, "token_type": "bearer"}
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    # print(token)
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -96,12 +102,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 
-@router.post('/user/signin')
+@router.post('/test/get-user')
 def sign_in(request: schemas.SignIn = Depends(get_current_user)):
-    return {"user_id": request.id, "username": request.username, "email": request.email}
+    return {"username": request.username, "email": request.email}
 
 
-@router.post('/user/signup')
+@router.post('/test/signup')
 def create_user(request: schemas.SignUp, db: Session = Depends(get_db)):
     db_user = db.query(models.UserIn).filter(
         models.UserIn.email == request.email).first()

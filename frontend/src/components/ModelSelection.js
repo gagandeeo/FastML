@@ -113,14 +113,18 @@ function ModelSelection(props) {
 
   const propTypes = {
     postTest: PropTypes.func.isRequired,
+    user_id: PropTypes.number.isRequired,
   };
+
+  console.log(props.user_id);
+
   const selectModel = (e, name, type) => {
     props.func(true);
     props.setType(type);
     props.setName(name);
     console.log(name);
     const data = {
-      user_id: 3,
+      user_id: props.user_id, //SET OVER HERE
       model_name: name,
     };
     mlApiService
@@ -197,5 +201,8 @@ function ModelSelection(props) {
 const mapDispatchToProps = {
   postTest,
 };
+const mapStateToProps = (state) => ({
+  user_id: state.auth.user.user_id,
+});
 
-export default connect(null, mapDispatchToProps)(ModelSelection);
+export default connect(mapStateToProps, mapDispatchToProps)(ModelSelection);

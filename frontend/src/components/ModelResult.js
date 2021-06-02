@@ -11,6 +11,7 @@ import Modal from "@material-ui/core/Modal";
 import ModelPredict from "./ModelPredict";
 import { loadResult } from "../redux/actions/loadResult";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import { Fragment } from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,16 +73,16 @@ function ModelResult(props) {
   return (
     <div className="model__result">
       {!props.load.isLoading ? (
-        <>
+        <Fragment>
           {props.result ? (
-            <>
+            <Fragment>
               <div>
                 <Button onClick={handleOpen} variant="contained" size="large">
                   {" "}
                   Predict Data
                 </Button>
                 <Modal
-                  ref={null}
+                  innerref={null}
                   open={open}
                   onClose={handleClose}
                   aria-labelledby="simple-modal-title"
@@ -101,7 +102,7 @@ function ModelResult(props) {
                 ))}
               </div>
               {props.result.type === 1 ? (
-                <>
+                <Fragment>
                   <div className="report__graphview">
                     <Card>
                       <Plot
@@ -147,10 +148,10 @@ function ModelResult(props) {
                       />
                     </Card>
                   </div>
-                </>
+                </Fragment>
               ) : null}
               {props.result.type === 0 ? (
-                <>
+                <Fragment>
                   <div className="report__graphview">
                     <Card>
                       <Plot
@@ -188,11 +189,11 @@ function ModelResult(props) {
                       />
                     </Card>
                   </div>
-                </>
+                </Fragment>
               ) : null}
-            </>
+            </Fragment>
           ) : (
-            <>
+            <Fragment>
               {props.load.error === 500 ? (
                 <h3
                   style={{
@@ -217,9 +218,9 @@ function ModelResult(props) {
                   <p> -Ryan Blair</p>
                 </h3>
               )}
-            </>
+            </Fragment>
           )}
-        </>
+        </Fragment>
       ) : (
         <div className="loader">
           <CircularProgress

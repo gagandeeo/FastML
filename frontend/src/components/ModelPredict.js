@@ -3,6 +3,9 @@ import mlApiService from "../services/mlapi.service";
 import "./css/ModelPredict.css";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { makeStyles } from "@material-ui/core/styles";
+import { Fragment } from "react";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
 
 const useStyles = makeStyles({
   root: {
@@ -12,18 +15,23 @@ const useStyles = makeStyles({
   },
 });
 
-function ModelPredict() {
+function ModelPredict(props) {
   const classes = useStyles();
   const [progress, setProgress] = React.useState(0);
   const [buffer, setBuffer] = React.useState(10);
   const [fileName, setFileName] = React.useState(null);
+
+  const propTypes = {
+    user_id: PropTypes.number.isRequired,
+  };
+
   const handleLoadData = async (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
+    formData.append("user_id", props.user_id);
     try {
       mlApiService.predictData(formData).then((response) => {
-        // console.log(response);
         const file = new Blob([response.data]);
         const fileURL = URL.createObjectURL(file);
         let a = document.createElement("a");
@@ -73,7 +81,7 @@ function ModelPredict() {
               {fileName.name} - {(fileName.size / 1000).toFixed(2) + "KB"}
             </p>
           ) : (
-            <>
+            <Fragment>
               {" "}
               {progress ? (
                 <div className={classes.root}>
@@ -86,7 +94,7 @@ function ModelPredict() {
               ) : (
                 "Load Data to predict and Download them"
               )}
-            </>
+            </Fragment>
           )}
         </label>
       </div>
@@ -94,4 +102,8 @@ function ModelPredict() {
   );
 }
 
-export default ModelPredict;
+const mapStateToProps = (state) => ({
+  user_id: state.auth.user.user_id,
+});
+
+export default connect(mapStateToProps, null)(ModelPredict);

@@ -11,6 +11,7 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ModelSelection from "./ModelSelection";
+import { login, logout } from "../redux/actions/auth";
 
 import {
   Button,
@@ -22,6 +23,7 @@ import {
 } from "@material-ui/core";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { makeStyles } from "@material-ui/core/styles";
+import { Fragment } from "react";
 
 const useStyles = makeStyles({
   root: {
@@ -35,7 +37,7 @@ function ModelTraining(props) {
   const [expanded, setExpanded] = React.useState(false);
   const [fileName, setFileName] = useState(null);
   const [usecols, setUsecols] = useState(null);
-  const [indexCol, setIndexCol] = useState(null);
+  const [indexCol, setIndexCol] = useState(10000);
   const [prepare, setPrepare] = useState(true);
   const [targets, setTargets] = useState("");
   const [testSize, setTestSize] = useState(0.25);
@@ -46,6 +48,9 @@ function ModelTraining(props) {
   const [modelType, setModelType] = useState("");
   const [allow, setAllow] = useState(true);
 
+  const handleLogout = () => {
+    props.logout();
+  };
   const handleHyperChange = (e, key) => {
     if (typeof props.data.hyper_params[`${key}`] == "number") {
       props.data.hyper_params[`${key}`] = Number(e.target.value);
@@ -75,8 +80,9 @@ function ModelTraining(props) {
     data: PropTypes.object,
     loadResult: PropTypes.func.isRequired,
     testResult: PropTypes.func.isRequired,
+    logout: PropTypes.func.isRequired,
+    user_id: PropTypes.number.isRequired,
   };
-
   const progressRef = React.useRef(() => {});
   React.useEffect(() => {
     progressRef.current = () => {
@@ -106,7 +112,7 @@ function ModelTraining(props) {
     e.preventDefault();
     progressRef.current();
     const formData = new FormData();
-    formData.append("user_id", 3);
+    formData.append("user_id", props.user_id);
     formData.append("file", e.target.files[0]);
     try {
       await mlApiService.uploadData(formData).then((res) => {
@@ -128,6 +134,7 @@ function ModelTraining(props) {
     e.preventDefault();
     // console.log(props.data.hyper_params);
     const data = {
+      user_id: props.user_id,
       model_type: modelType,
       hyper_params: props.data.hyper_params,
       usecols: usecols,
@@ -139,6 +146,7 @@ function ModelTraining(props) {
       encoding: encoder,
       scaling: scaler,
     };
+
     console.log(data);
     if (targets) {
       props.loadResult({ isLoading: true });
@@ -175,6 +183,9 @@ function ModelTraining(props) {
   return (
     <div className="model__training">
       <div className="file__input">
+        <Button style={{ color: "white" }} onClick={handleLogout}>
+          LogOut
+        </Button>
         <input
           className="file"
           id="file"
@@ -187,7 +198,7 @@ function ModelTraining(props) {
               {fileName.name} - {(fileName.size / 1000).toFixed(2) + "KB"}
             </p>
           ) : (
-            <>
+            <Fragment>
               {" "}
               {progress ? (
                 <div className={classes.root}>
@@ -200,7 +211,7 @@ function ModelTraining(props) {
               ) : (
                 "Load Data"
               )}
-            </>
+            </Fragment>
           )}
         </label>
       </div>
@@ -345,7 +356,7 @@ function ModelTraining(props) {
                   id="standard-required"
                   label="Required"
                   error={targets ? false : true}
-                  size="small"
+                  size="medium"
                   variant="outlined"
                   className="target__input"
                   label="Target Class-Name"
@@ -354,7 +365,7 @@ function ModelTraining(props) {
               </div>
               <div className="prepare__options">
                 <TextField
-                  size="small"
+                  size="medium"
                   variant="outlined"
                   className="target__input"
                   label="Cols to use (col1_Name, col2_Name,..)"
@@ -363,7 +374,7 @@ function ModelTraining(props) {
               </div>
               <div className="prepare__options">
                 <TextField
-                  size="small"
+                  size="medium"
                   variant="outlined"
                   className="target__input"
                   label="Index-col=None"
@@ -434,10 +445,12 @@ function ModelTraining(props) {
 
 const mapStateToProps = (state) => ({
   data: state.test.test,
+  user_id: state.auth.user.user_id,
 });
 const mapDispatchToProps = {
   testResult,
   loadResult,
+  logout,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModelTraining);
