@@ -67,23 +67,23 @@ async def test_select_model(request: schemas.SelectModel, token: str = Depends(o
 
 @router.post("/test/train-model")
 async def test_train_model(properties: schemas.TrainModelIn, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    # try:
-    db_query = db.query(models.DataIn).filter(models.DataIn.user_id ==
-                                              properties.user_id).order_by(models.DataIn.created_at.desc()).first()
-    ml_model = train_model.TrainModel(
-        data=db_query.url, targets=properties.targets, model_name=db_query.model_name, usecols=properties.usecols, index_col=properties.index_col, model_type=properties.model_type)
-    ml_model.prepare_data(dropna=properties.dropna, imputer=properties.impute,
-                          encoding=properties.encoding, scaling=properties.scaling)
-    score, jblib_path = ml_model.train(
-        hyperparams=properties.hyper_params, test_size=properties.test_size)
-    db.query(models.DataIn).filter(models.DataIn.id ==
-                                   db_query.id).update({models.DataIn.temp: jblib_path})
-    db.commit()
-    db.refresh(db_query)
-    return score
-    # except:
-    #     raise HTTPException(
-    #         status_code=500, detail="Make sure your estimator is compatible with type data (i.e. clasifier/regressor/cluster)")
+    try:
+        db_query = db.query(models.DataIn).filter(models.DataIn.user_id ==
+                                                  properties.user_id).order_by(models.DataIn.created_at.desc()).first()
+        ml_model = train_model.TrainModel(
+            data=db_query.url, targets=properties.targets, model_name=db_query.model_name, usecols=properties.usecols, index_col=properties.index_col, model_type=properties.model_type)
+        ml_model.prepare_data(dropna=properties.dropna, imputer=properties.impute,
+                              encoding=properties.encoding, scaling=properties.scaling)
+        score, jblib_path = ml_model.train(
+            hyperparams=properties.hyper_params, test_size=properties.test_size)
+        db.query(models.DataIn).filter(models.DataIn.id ==
+                                       db_query.id).update({models.DataIn.temp: jblib_path})
+        db.commit()
+        db.refresh(db_query)
+        return score
+    except:
+        raise HTTPException(
+            status_code=500, detail="Make sure your estimator is compatible with type data (i.e. clasifier/regressor/cluster)")
 
 
 @router.post("/test/prepare-data")
