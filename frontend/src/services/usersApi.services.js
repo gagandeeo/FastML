@@ -1,8 +1,8 @@
-import http from "./http-common";
+import { userApi } from "./http-common";
 
 class usersApiService {
   login(data) {
-    return http.post(
+    return userApi.post(
       "login",
       data /* {
       headers: {
@@ -11,6 +11,9 @@ class usersApiService {
       },
     } */
     );
+  }
+  signup(data) {
+    return userApi.post("signup", data);
   }
   logout() {
     localStorage.removeItem("token_type");

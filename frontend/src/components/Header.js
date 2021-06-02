@@ -12,7 +12,7 @@ function Header() {
           LogIn
         </Button>
         {/* </Link> */}
-        <Button className="header__rightBtn" variant="contained">
+        <Button href="/signup" className="header__rightBtn" variant="contained">
           SignUp
         </Button>
       </div>

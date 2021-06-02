@@ -1,23 +1,23 @@
-import http from "./http-common";
+import { mlApi } from "./http-common";
 
 class mlApiService {
   uploadData(data) {
-    return http.post("upload", data);
+    return mlApi.post("upload", data);
   }
   selectModel(data) {
-    return http.post(`select-model/${data.model_name}`, data);
+    return mlApi.post(`select-model/${data.model_name}`, data);
   }
   trainModel(data) {
-    return http.post("train-model", data);
+    return mlApi.post("train-model", data);
   }
   prepareData(data) {
-    return http.post("prepare-data", data);
+    return mlApi.post("prepare-data", data);
   }
   downloadModel() {
-    return http.get("download-model");
+    return mlApi.get("download-model");
   }
   predictData(data) {
-    return http.post("predict", data);
+    return mlApi.post("predict", data);
   }
 }
 

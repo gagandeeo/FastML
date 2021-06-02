@@ -12,7 +12,7 @@ import models
 
 SECRET_KEY = "30844f81b23d1ce68b7c6960dd87092d0e6d3daf6ea15df2d4f1f8decd2532ed"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
 router = APIRouter()
@@ -56,6 +56,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
+    print(to_encode)
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -112,7 +113,7 @@ def create_user(request: schemas.SignUp, db: Session = Depends(get_db)):
     db_user = db.query(models.UserIn).filter(
         models.UserIn.email == request.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail='User already exists')
+        raise HTTPException(status_code=400, detail='Email already registered')
 
     hashed_password = get_password_hash(request.password)
 

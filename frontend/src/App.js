@@ -13,16 +13,18 @@ import LoginPage from "./components/LoginPage";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import LandingPage from "./components/LandingPage";
+import SignUp from "./components/SignUp";
 
 function App(props) {
   const propTypes = {
-    isAuthenticated: PropTypes.bool,
+    isAuthenticated: PropTypes.string,
   };
   console.log(props.isAuthenticated);
   return (
     <div className="app">
       <Switch>
         <Route path="/landing" component={LandingPage} />
+        <Route path="/signup" component={SignUp} />
         <Route
           path="/login"
           render={() =>
