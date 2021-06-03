@@ -61,6 +61,15 @@ function LoginPage(props) {
         >
           Log In
         </Button>
+        <Button
+          href="/signup"
+          type="submit"
+          style={{ marginTop: "10px" }}
+          variant="contained"
+          color="secondary"
+        >
+          Not a Member?
+        </Button>
       </form>
     </div>
   );

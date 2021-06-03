@@ -11,7 +11,6 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ModelSelection from "./ModelSelection";
-import { login, logout } from "../redux/actions/auth";
 
 import {
   Button,
@@ -48,9 +47,6 @@ function ModelTraining(props) {
   const [modelType, setModelType] = useState("");
   const [allow, setAllow] = useState(true);
 
-  const handleLogout = () => {
-    props.logout();
-  };
   const handleHyperChange = (e, key) => {
     if (typeof props.data.hyper_params[`${key}`] == "number") {
       props.data.hyper_params[`${key}`] = Number(e.target.value);
@@ -80,7 +76,7 @@ function ModelTraining(props) {
     data: PropTypes.object,
     loadResult: PropTypes.func.isRequired,
     testResult: PropTypes.func.isRequired,
-    logout: PropTypes.func.isRequired,
+
     user_id: PropTypes.number.isRequired,
   };
   const progressRef = React.useRef(() => {});
@@ -96,10 +92,10 @@ function ModelTraining(props) {
         setBuffer(progress + diff + diff2);
       }
     };
-  });
+  }, []);
 
   const handleTimer = () => {
-    const timer = setInterval(() => {
+    setInterval(() => {
       progressRef.current();
     }, 500);
   };
@@ -109,13 +105,23 @@ function ModelTraining(props) {
     setTargets(e.target.value);
   };
   const handleLoadData = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
     progressRef.current();
     const formData = new FormData();
     formData.append("user_id", props.user_id);
     formData.append("file", e.target.files[0]);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    if (token) {
+      config.headers["Authorization"] = `bearer ${token}`;
+    }
     try {
-      await mlApiService.uploadData(formData).then((res) => {
+      await mlApiService.uploadData(formData, config).then((res) => {
         setFileName(e.target.files[0]);
         setAllow(false);
         console.log(res);
@@ -132,6 +138,18 @@ function ModelTraining(props) {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    if (token) {
+      config.headers["Authorization"] = `bearer ${token}`;
+    }
+
     // console.log(props.data.hyper_params);
     const data = {
       user_id: props.user_id,
@@ -152,7 +170,7 @@ function ModelTraining(props) {
       props.loadResult({ isLoading: true });
 
       try {
-        await mlApiService.trainModel(data).then((res) => {
+        await mlApiService.trainModel(data, config).then((res) => {
           props.testResult(res.data);
           props.loadResult({ isLoading: false });
         });
@@ -183,9 +201,6 @@ function ModelTraining(props) {
   return (
     <div className="model__training">
       <div className="file__input">
-        <Button style={{ color: "white" }} onClick={handleLogout}>
-          LogOut
-        </Button>
         <input
           className="file"
           id="file"
@@ -450,7 +465,6 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   testResult,
   loadResult,
-  logout,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModelTraining);

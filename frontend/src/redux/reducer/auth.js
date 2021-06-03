@@ -1,5 +1,7 @@
 import { LOGIN_SUCCESS, LOGOUT_SUCCESS } from "../actions/types";
 
+// import { setToken } from "../../services/http-common";
+
 const initialState = {
   token: localStorage.getItem("token"),
   isAuthenticated: false,
@@ -11,7 +13,7 @@ export default function (state = initialState, action) {
     case LOGIN_SUCCESS:
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("token_type", action.payload.token_type);
-
+      // setToken(action.payload.token, action.payload.token_type);
       return {
         ...state,
         ...action.payload,

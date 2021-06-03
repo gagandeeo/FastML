@@ -87,7 +87,7 @@ async def test_train_model(properties: schemas.TrainModelIn, token: str = Depend
 
 
 @router.post("/test/prepare-data")
-async def test_upload(properties: schemas.UploadData, db: Session = Depends(get_db)):
+async def test_upload(properties: schemas.UploadData, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     db_query = db.query(models.DataIn).filter(models.DataIn.user_id ==
                                               properties.user_id).order_by(models.DataIn.created_at.desc()).first()
 
@@ -98,7 +98,7 @@ async def test_upload(properties: schemas.UploadData, db: Session = Depends(get_
 
 
 @router.post("/test/predict")
-async def predict_data(user_id: int = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def predict_data(user_id: int = Form(...), file: UploadFile = File(...), token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
         async with aiofiles.open("./static/predict_data/{}".format(file.filename), "wb") as out_file:
             content = await file.read()
@@ -117,7 +117,7 @@ async def predict_data(user_id: int = Form(...), file: UploadFile = File(...), d
 
 
 @router.get("/test/download-model")
-async def download_model(request: schemas.DownloadData, db: Session = Depends(get_db)):
+async def download_model(request: schemas.DownloadData, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     db_query = db.query(models.DataIn).filter(models.DataIn.user_id ==
                                               request.user_id).order_by(models.DataIn.created_at.desc()).first()
     file_name = db_query.temp.split("/")

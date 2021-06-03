@@ -1,7 +1,7 @@
 .model__result {
   background-color: #0f1724;
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   flex-direction: column;
   flex: 0.7;
   overflow-y: scroll;

@@ -12,7 +12,7 @@ import models
 
 SECRET_KEY = "30844f81b23d1ce68b7c6960dd87092d0e6d3daf6ea15df2d4f1f8decd2532ed"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
 router = APIRouter()

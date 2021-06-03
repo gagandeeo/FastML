@@ -1,23 +1,32 @@
 import { mlApi } from "./http-common";
 
+// const headers = {
+//   headers: {
+//     Authorization: `${localStorage.getItem(
+//       "token_type"
+//     )} ${localStorage.getItem("token")}`,
+//   },
+// };
+
 class mlApiService {
-  uploadData(data) {
-    return mlApi.post("upload", data);
+  uploadData(data, config) {
+    return mlApi.post("upload", data, config);
   }
-  selectModel(data) {
-    return mlApi.post(`select-model/${data.model_name}`, data);
+  selectModel(data, config) {
+    return mlApi.post(`select-model/${data.model_name}`, data, config);
   }
-  trainModel(data) {
-    return mlApi.post("train-model", data);
+  trainModel(data, config) {
+    return mlApi.post("train-model", data, config);
   }
-  prepareData(data) {
-    return mlApi.post("prepare-data", data);
+  prepareData(data, config) {
+    return mlApi.post("prepare-data", data, config);
   }
-  downloadModel() {
-    return mlApi.get("download-model");
+  //Update down
+  downloadModel(config) {
+    return mlApi.get("download-model", config);
   }
-  predictData(data) {
-    return mlApi.post("predict", data);
+  predictData(data, config) {
+    return mlApi.post("predict", data, config);
   }
 }
 

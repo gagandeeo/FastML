@@ -127,8 +127,20 @@ function ModelSelection(props) {
       user_id: props.user_id, //SET OVER HERE
       model_name: name,
     };
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    if (token) {
+      config.headers["Authorization"] = `bearer ${token}`;
+    }
+
+    console.log(localStorage.getItem("token"));
     mlApiService
-      .selectModel(data)
+      .selectModel(data, config)
       .then((res) => {
         props.postTest(res.data);
       })

@@ -70,6 +70,15 @@ function SignUp() {
         >
           Sign Up
         </Button>
+        <Button
+          href="/login"
+          type="submit"
+          style={{ marginTop: "10px" }}
+          variant="contained"
+          color="secondary"
+        >
+          Already a member?
+        </Button>
       </form>
     </div>
   );

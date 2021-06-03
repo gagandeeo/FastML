@@ -10,5 +10,10 @@
   padding: 10px;
 }
 .header__rightBtn {
-  margin: 2px !important;
+  margin: 5px !important;
+}
+.alpha__logo {
+  color: rgb(255, 133, 204);
+  margin-left: 20px;
+  cursor: pointer;
 }

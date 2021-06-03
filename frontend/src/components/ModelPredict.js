@@ -30,8 +30,19 @@ function ModelPredict(props) {
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
     formData.append("user_id", props.user_id);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    if (token) {
+      config.headers["Authorization"] = `bearer ${token}`;
+    }
+
     try {
-      mlApiService.predictData(formData).then((response) => {
+      mlApiService.predictData(formData, config).then((response) => {
         const file = new Blob([response.data]);
         const fileURL = URL.createObjectURL(file);
         let a = document.createElement("a");

@@ -19,11 +19,10 @@ function App(props) {
   const propTypes = {
     isAuthenticated: PropTypes.string,
   };
-  console.log(props.isAuthenticated);
   return (
     <div className="app">
       <Switch>
-        <Route path="/landing" component={LandingPage} />
+        <Route exact path="/" component={LandingPage} />
         <Route path="/signup" component={SignUp} />
         <Route
           path="/login"
@@ -38,7 +37,7 @@ function App(props) {
             if (props.isAuthenticated) {
               return <View />;
             } else {
-              return <Redirect to="/landing" />;
+              return <Redirect exact to="/" />;
             }
           }}
         />

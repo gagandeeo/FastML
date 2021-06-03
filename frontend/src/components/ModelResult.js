@@ -12,6 +12,7 @@ import ModelPredict from "./ModelPredict";
 import { loadResult } from "../redux/actions/loadResult";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Fragment } from "react";
+import { logout } from "../redux/actions/auth";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,6 +29,9 @@ function ModelResult(props) {
   const [open, setOpen] = React.useState(false);
   const [progress, setProgress] = React.useState(10);
 
+  const handleLogout = () => {
+    props.logout();
+  };
   const handleOpen = (e) => {
     setOpen(true);
   };
@@ -38,12 +42,12 @@ function ModelResult(props) {
     loadResult: PropTypes.func.isRequired,
     result: PropTypes.object,
     load: PropTypes.object,
+    logout: PropTypes.func.isRequired,
   };
   // const handleDownload = (e) => {
 
   // };
   const classes = useStyles();
-  const bull = <span className={classes.bullet}>•</span>;
   var data = [];
 
   if (props.load.isLoading) {
@@ -72,15 +76,29 @@ function ModelResult(props) {
 
   return (
     <div className="model__result">
+      <Button
+        color="secondary"
+        variant="contained"
+        onClick={handleLogout}
+        style={{ width: "20%", alignSelf: "flex-end" }}
+      >
+        LogOut
+      </Button>
       {!props.load.isLoading ? (
         <Fragment>
           {props.result ? (
             <Fragment>
               <div>
-                <Button onClick={handleOpen} variant="contained" size="large">
+                <Button
+                  onClick={handleOpen}
+                  variant="contained"
+                  style={{ backgroundColor: "whitesmoke" }}
+                  size="large"
+                >
                   {" "}
                   Predict Data
                 </Button>
+
                 <Modal
                   innerref={null}
                   open={open}
@@ -91,6 +109,7 @@ function ModelResult(props) {
                   <ModelPredict />
                 </Modal>
               </div>
+
               <div className="report__view">
                 <Typography style={{ marginBottom: "20px" }} variant="button">
                   Metrics
@@ -240,5 +259,6 @@ const mapStateToProps = (state) => ({
 });
 const mapDispatchToProps = {
   loadResult,
+  logout,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(ModelResult);
