@@ -43,10 +43,10 @@ function ModelPredict(props) {
 
     try {
       mlApiService.predictData(formData, config).then((response) => {
-        const file = new Blob([response.data]);
-        const fileURL = URL.createObjectURL(file);
+//         const file = new Blob([response.data]);
+//         const fileURL = URL.createObjectURL(file);
         let a = document.createElement("a");
-        a.href = fileURL;
+        a.href = response.data.url;
         a.download = "download_prediction.csv";
         a.click();
         setFileName(e.target.files[0]);
