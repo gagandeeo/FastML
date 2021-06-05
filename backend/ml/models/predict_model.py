@@ -3,14 +3,17 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
+import io
+from routers.s3_handler import upload_csv, download_file
+
 BASE_DIR = Path(__file__).resolve(strict=True).parents[2]
 
 
-def predict(pred_path, jblib_path=None):
+def predict(pred_path, obj_key, jblib_path=None):
     if(jblib_path != None and pred_path != None):
-        model_instance = joblib.load(Path.joinpath(BASE_DIR, jblib_path))
-        data_path = Path.joinpath(BASE_DIR, pred_path)
-        pred_df = pd.read_csv(data_path)
+        model_instance = joblib.load(io.BytesIO(jblib_path.read()))
+        # data_path = Path.joinpath(BASE_DIR, pred_path)
+        pred_df = pd.read_csv(pred_path)
         X_val = pred_df[model_instance.steps[0][1]]
         flag = 1
 
@@ -38,7 +41,9 @@ def predict(pred_path, jblib_path=None):
         # print(model_instance['encoder'].inverse_transform(
         #     result.reshape(-1, 1)))
         # print(model_instance.steps[0][0])
-        pred_df.to_csv(data_path)
-        return pred_path
+        # pred_df.to_csv(pred_path)
+        upload_csv(pred_df, obj_key)
+        url = download_file(obj_key)
+        return url
     else:
         return "No Model Found!!"

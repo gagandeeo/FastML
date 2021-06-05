@@ -19,6 +19,7 @@ from sklearn import model_selection
 import joblib
 import time
 import numpy as np
+from routers.s3_handler import upload_model_file
 
 
 BASE_DIR = Path(__file__).resolve(strict=True).parents[2]
@@ -32,18 +33,15 @@ class TrainModel:
             if (targets not in usecols and targets not in ["string", "", None]):
                 usecols.append(targets)
             if(index_col != 10000):
-                self.df = pd.read_csv(Path.joinpath(
-                    BASE_DIR, data), usecols=usecols, index_col=index_col)
+                self.df = pd.read_csv(
+                    data, usecols=usecols, index_col=index_col)
             else:
-                self.df = pd.read_csv(Path.joinpath(
-                    BASE_DIR, data), usecols=usecols, index_col=None)
+                self.df = pd.read_csv(data, usecols=usecols, index_col=None)
         else:
             if(index_col != 10000):
-                self.df = pd.read_csv(Path.joinpath(
-                    BASE_DIR, data), usecols=None, index_col=index_col)
+                self.df = pd.read_csv(data, usecols=None, index_col=index_col)
             else:
-                self.df = pd.read_csv(Path.joinpath(
-                    BASE_DIR, data), usecols=None, index_col=None)
+                self.df = pd.read_csv(data, usecols=None, index_col=None)
         self.model_name = model_name
         self.model_type = model_type
         self.model_instance = None
@@ -162,7 +160,9 @@ class TrainModel:
                 }
             }
 
-        jblib_path = f"static/joblibs_models/{time.time()}.joblib"
-        joblib.dump(self.pipeline_instance,
-                    Path.joinpath(BASE_DIR, jblib_path))
+        jblib_path = f"joblibs_models/{time.time()}.joblib"
+
+        upload_model_file(
+            self.pipeline_instance,  jblib_path)
+
         return class_metric, jblib_path
