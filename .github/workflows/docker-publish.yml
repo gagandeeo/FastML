@@ -29,7 +29,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: docker-compose build
         run: |
-          docker-compose --build
+          docker-compose build
 #       - name: docker build backend
 #         run: |
 #           docker build ./backend -t ggndp/fast:backend
