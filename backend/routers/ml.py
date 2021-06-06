@@ -25,34 +25,34 @@ def get_db():
 
 @router.post("/test/upload")
 async def test_upload(user_id: int = Form(...), file: UploadFile = File(...), token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    try:
-        # async with aiofiles.open("./static/data/{}".format(file.filename), "wb") as out_file:
-        #     content = await file.read()
-        #     await out_file.write(content)
-        key = f"data/{user_id}_{file.filename}"
-        content_type = file.content_type
-        if s3_handler.upload_file(temp_file=file.file, key=key, content_type=content_type):
-            # url = str("static/data/"+file.filename)
-            db_verify = db.query(models.DataIn).filter(
-                models.DataIn.user_id == user_id, models.DataIn.url == key).first()
-            if db_verify is None:
-                db_request = models.DataIn(
-                    url=key, user_id=user_id,
-                )
-                db.add(db_request)
-                db.commit()
-                db.refresh(db_request)
-            else:
-                db.query(models.DataIn).filter(models.DataIn.id == db_verify.id).update({
-                    models.DataIn.url: key,
-                    models.DataIn.created_at: sql.func.now()
-                })
-                db.commit()
+    # try:
+    # async with aiofiles.open("./static/data/{}".format(file.filename), "wb") as out_file:
+    #     content = await file.read()
+    #     await out_file.write(content)
+    key = f"data/{user_id}_{file.filename}"
+    content_type = file.content_type
+    if s3_handler.upload_file(temp_file=file.file, key=key, content_type=content_type):
+        # url = str("static/data/"+file.filename)
+        db_verify = db.query(models.DataIn).filter(
+            models.DataIn.user_id == user_id, models.DataIn.url == key).first()
+        if db_verify is None:
+            db_request = models.DataIn(
+                url=key, user_id=user_id,
+            )
+            db.add(db_request)
+            db.commit()
+            db.refresh(db_request)
+        else:
+            db.query(models.DataIn).filter(models.DataIn.id == db_verify.id).update({
+                models.DataIn.url: key,
+                models.DataIn.created_at: sql.func.now()
+            })
+            db.commit()
 
-            return {"Result": key}
-    except:
-        raise HTTPException(
-            status_code=500, detail="Data could not be loaded try again!")
+        return {"Result": key}
+    # except:
+    #     raise HTTPException(
+    #         status_code=500, detail="Data could not be loaded try again!")
 
 
 @router.post("/test/select-model/{model_name}", response_model=schemas.HyperParams)
