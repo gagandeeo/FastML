@@ -35,6 +35,9 @@ jobs:
       - name: docker-compose build
         run: |
           docker-compose build
+      - name: docker push
+        run: |
+          docker-compose push 
 #       - name: docker build backend
 #         run: |
 #           docker build ./backend -t ggndp/fast:backend
