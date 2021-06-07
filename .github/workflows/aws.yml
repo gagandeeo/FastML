@@ -81,6 +81,6 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: fastml-service-2
-        cluster: fastml-cluster
+        service: fastml-service-3
+        cluster: fastml-cluster-2
         wait-for-service-stability: true
