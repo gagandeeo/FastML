@@ -9,9 +9,9 @@
       "entryPoint": null,
       "portMappings": [
         {
-          "hostPort": 0,
+          "hostPort": 80,
           "protocol": "tcp",
-          "containerPort": 8000
+          "containerPort": 80
         }
       ],
       "command": null,
@@ -26,7 +26,7 @@
       "secrets": null,
       "dockerSecurityOptions": null,
       "memory": null,
-      "memoryReservation": 256,
+      "memoryReservation": null,
       "volumesFrom": [],
       "stopTimeout": null,
       "image": "779604425423.dkr.ecr.us-east-2.amazonaws.com/fastml",
@@ -50,26 +50,20 @@
     }
   ],
   "placementConstraints": [],
-  "memory": null,
+  "memory": "128",
   "taskRoleArn": null,
   "compatibilities": [
     "EXTERNAL",
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-2:779604425423:task-definition/fastml-task-definition-2:1",
-  "family": "fastml-task-definition-2",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-2:779604425423:task-definition/fastml-task-definition-3:1",
+  "family": "fastml-task-definition-3",
   "requiresAttributes": [
     {
       "targetId": null,
       "targetType": null,
       "value": null,
       "name": "com.amazonaws.ecs.capability.ecr-auth"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
     }
   ],
   "pidMode": null,
@@ -77,7 +71,7 @@
     "EC2"
   ],
   "networkMode": null,
-  "cpu": null,
+  "cpu": "1024",
   "revision": 1,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
