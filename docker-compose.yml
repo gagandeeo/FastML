@@ -1,16 +1,16 @@
 version: "3"
 
 services:
-  db:
-    image: "postgres:13-alpine"
-    env_file:
-      - api.env
-    volumes:
-      - ./postgres_data:/var/lib/postgresql/data/
-    # ports:
-    #   - 5432:5432
-    networks:
-      - test_network
+  # db:
+  #   image: "postgres:13-alpine"
+  #   env_file:
+  #     - ./backend/api.env
+  #   volumes:
+  #     - ./postgres_data:/var/lib/postgresql/data/
+  #   # ports:
+  #   #   - 5432:5432
+  #   networks:
+  #     - test_network
 
   api:
     container_name: api
@@ -21,12 +21,12 @@ services:
     volumes:
       - ~/.aws/:/root/.aws:ro
     env_file:
-      - api.env
+      - ./backend/api.env
     command: uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     ports:
       - 8000:8000
-    depends_on:
-      - db
+    # depends_on:
+    # - db
     networks:
       - test_network
 
@@ -34,7 +34,7 @@ services:
     build: ./frontend
     image: ggndp/fast:frontend
     depends_on:
-      - db
+      # - db
       - api
     ports:
       - 3001:80

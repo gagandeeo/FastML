@@ -3,7 +3,8 @@ import os
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-load_dotenv("../api.env")
+
+load_dotenv("./api.env")
 
 user = os.environ["POSTGRES_USER"]
 password = os.environ["POSTGRES_PASSWORD"]
