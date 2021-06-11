@@ -30,16 +30,16 @@ services:
     networks:
       - test_network
 
-  server:
-    build: ./frontend
-    image: ggndp/fast:frontend
-    depends_on:
-      # - db
-      - api
-    ports:
-      - 3001:80
-    networks:
-      - test_network
+  # server:
+  #   build: ./frontend
+  #   image: ggndp/fast:frontend
+  #   depends_on:
+  #     # - db
+  #     - api
+  #   ports:
+  #     - 3001:80
+  #   networks:
+  #     - test_network
 
 networks:
   test_network:
