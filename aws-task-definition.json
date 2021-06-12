@@ -11,7 +11,7 @@
         {
           "hostPort": 0,
           "protocol": "tcp",
-          "containerPort": 8000
+          "containerPort": 80
         }
       ],
       "command": null,
@@ -26,10 +26,10 @@
       "secrets": null,
       "dockerSecurityOptions": null,
       "memory": null,
-      "memoryReservation": 256,
+      "memoryReservation": 128,
       "volumesFrom": [],
       "stopTimeout": null,
-      "image": "779604425423.dkr.ecr.us-east-2.amazonaws.com/fastml-repo",
+      "image": "779604425423.dkr.ecr.us-east-2.amazonaws.com/fastml-frontend-repo:c5e998e8fce0d50bfe003012e79d3a84503dd477",
       "startTimeout": null,
       "firelensConfiguration": null,
       "dependsOn": null,
@@ -46,7 +46,7 @@
       "dockerLabels": null,
       "systemControls": null,
       "privileged": null,
-      "name": "fastml-repo"
+      "name": "fastml-frontend-repo"
     }
   ],
   "placementConstraints": [],
@@ -56,8 +56,8 @@
     "EXTERNAL",
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-2:779604425423:task-definition/fastml-task:4",
-  "family": "fastml-task",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-2:779604425423:task-definition/fastml-frontend-task:4",
+  "family": "fastml-frontend-task",
   "requiresAttributes": [
     {
       "targetId": null,
