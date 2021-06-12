@@ -56,7 +56,7 @@
     "EXTERNAL",
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-2:779604425423:task-definition/fastml-task-definition:4",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-2:779604425423:task-definition/fastml-task-definition:6",
   "family": "fastml-task-definition",
   "requiresAttributes": [
     {
@@ -78,7 +78,7 @@
   ],
   "networkMode": "bridge",
   "cpu": null,
-  "revision": 4,
+  "revision": 6,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
