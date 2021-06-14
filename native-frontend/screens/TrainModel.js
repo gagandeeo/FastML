@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Input } from "react-native-elements";
 import DocumentPicker from "react-native-document-picker";
-
 const TrainModel = () => {
   const [singleFile, setSingleFile] = useState(null);
   const selectFile = async () => {
