@@ -79,7 +79,7 @@ function Taber() {
         <TouchableOpacity onPress={() => setType(1)}>
           <Text>Classification</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setType(2)}>
+        <TouchableOpacity disabled={true} onPress={() => setType(2)}>
           <Text>Cluster</Text>
         </TouchableOpacity>
       </View>

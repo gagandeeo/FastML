@@ -3,22 +3,8 @@ import { StyleSheet, Text, View, Button } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 import TrainModel from "./TrainModel";
-
-function SettingsScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Settings!</Text>
-    </View>
-  );
-}
-
-function SettingScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Setting1!</Text>
-    </View>
-  );
-}
+import ResultModel from "./ResultModel";
+import Predict from "./Predict";
 
 const Tab = createBottomTabNavigator();
 
@@ -45,8 +31,8 @@ const Dashboard = () => {
       }}
     >
       <Tab.Screen name="Train" component={TrainModel} />
-      <Tab.Screen name="Report" component={SettingsScreen} />
-      <Tab.Screen name="Predict" component={SettingScreen} />
+      <Tab.Screen name="Report" component={ResultModel} />
+      <Tab.Screen name="Predict" component={Predict} />
     </Tab.Navigator>
   );
 };

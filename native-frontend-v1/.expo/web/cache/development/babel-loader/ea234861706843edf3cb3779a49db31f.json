@@ -1,0 +1,1 @@
+{"ast":null,"code":"import Plotly from \"./plotly\";\nexport default Plotly;","map":{"version":3,"sources":["../src/index.tsx"],"names":[],"mappings":"AAAA,OAAO,MAAP;AAEA,eAAe,MAAf","sourceRoot":"","sourcesContent":["import Plotly from './plotly';\r\nexport default Plotly;\r\n//# sourceMappingURL=index.js.map"]},"metadata":{},"sourceType":"module"}
