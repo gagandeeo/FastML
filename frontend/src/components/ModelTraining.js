@@ -110,7 +110,7 @@ function ModelTraining(props) {
     const formData = new FormData();
     formData.append("user_id", props.user_id);
     formData.append("file", e.target.files[0]);
-    console.log(formData);
+    console.log(e.target.files[0]);
     const token = localStorage.getItem("token");
     const config = {
       headers: {
