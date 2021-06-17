@@ -1,14 +1,46 @@
 import React from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 import TrainModel from "./TrainModel";
 import ResultModel from "./ResultModel";
 import Predict from "./Predict";
+import { Button } from "react-native-elements";
+import { logout } from "../redux/actions/auth";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { loadResult } from "../redux/actions/loadResult";
+
+function HeaderRight(props) {
+  const handleLogOut = () => {
+    alert("Log Out!");
+  };
+  return (
+    <Button
+      buttonStyle={{ backgroundColor: "#CB3F50" }}
+      containerStyle={{ marginRight: 5 }}
+      title="Log Out"
+      onPress={handleLogOut}
+    />
+  );
+}
 
 const Tab = createBottomTabNavigator();
 
-const Dashboard = () => {
+const Dashboard = (props) => {
+  React.useLayoutEffect(() => {
+    props.navigation.setOptions({
+      headerRight: () => <HeaderRight logout={props.logout} />,
+    });
+  });
+
+  const propTypes = {
+    loadResult: PropTypes.func.isRequired,
+    result: PropTypes.object,
+    load: PropTypes.object,
+    logout: PropTypes.func.isRequired,
+  };
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -36,8 +68,15 @@ const Dashboard = () => {
     </Tab.Navigator>
   );
 };
-
-export default Dashboard;
+const mapStateToProps = (state) => ({
+  result: state.testResult.result,
+  load: state.loadResult.load,
+});
+const mapDispatchToProps = {
+  loadResult,
+  logout,
+};
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
 
 const styles = StyleSheet.create({
   container: {

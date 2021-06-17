@@ -8,26 +8,29 @@ import LandingPage from "./screens/LandingPage";
 import SignUpPage from "./screens/SignUpPage";
 import LoginPage from "./screens/LoginPage";
 import Dashboard from "./screens/Dashboard";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { store, persistor } from "./redux/configureStore";
+import { Provider } from "react-redux";
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="LandingPage"
-          component={LandingPage}
-          options={({ navigation, route }) => ({
-            headerTitle: "FastML",
-          })}
-        />
-        <Stack.Screen name="SignUpPage" component={SignUpPage} />
-        <Stack.Screen name="LoginPage" component={LoginPage} />
-        <Stack.Screen name="Dashboard" component={Dashboard} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="LandingPage"
+            component={LandingPage}
+            options={({ navigation, route }) => ({
+              headerTitle: "FastML",
+            })}
+          />
+          <Stack.Screen name="SignUpPage" component={SignUpPage} />
+          <Stack.Screen name="LoginPage" component={LoginPage} />
+          <Stack.Screen name="Dashboard" component={Dashboard} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 }
 
