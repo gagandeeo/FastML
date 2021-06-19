@@ -1,100 +1,207 @@
 import React from "react";
-import {
-  StyleSheet,
-  Dimensions,
-  Text,
-  View,
-  SafeAreaView,
-  ScrollView,
-} from "react-native";
+import { StyleSheet, Text, View, SafeAreaView, ScrollView } from "react-native";
+import { Button, Overlay } from "react-native-elements";
 import Plotly from "react-native-plotly";
-import { LineChart, ContributionGraph } from "react-native-chart-kit";
+import { loadResult } from "../redux/actions/loadResult";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { logout } from "../redux/actions/auth";
 
-const ResultModel = () => {
-  const data = [1, 2, 3, 4];
+const ResultModel = (props) => {
+  const [visible, setVisible] = React.useState(false);
+  const [visibleH, setVisibleH] = React.useState(false);
+
+  const toggleOverlay = () => {
+    setVisible(!visible);
+  };
+
+  const toggleOverlayH = () => {
+    setVisibleH(!visibleH);
+  };
+
+  var dataset = [];
   const layout = { title: "My cool chart!" };
+  const propTypes = {
+    loadResult: PropTypes.func.isRequired,
+    result: PropTypes.object,
+    load: PropTypes.object,
+    logout: PropTypes.func.isRequired,
+  };
+
+  React.useEffect(() => {
+    console.log(props.result);
+  }, []);
+
+  if (props.result) {
+    if (props.result.type === 1) {
+      for (
+        let index = 0;
+        index < props.result.misc.roc_curve.fpr.length;
+        index++
+      ) {
+        dataset.push({
+          x: props.result.misc.roc_curve.fpr[index],
+          y: props.result.misc.roc_curve.tpr[index],
+          name: `Class${index} vs Rest`,
+        });
+      }
+    }
+  }
+
   const commitsData = [
-    { date: "2017-01-02", count: 1 },
-    { date: "2017-01-03", count: 2 },
-    { date: "2017-01-04", count: 3 },
-    { date: "2017-01-05", count: 4 },
-    { date: "2017-01-06", count: 5 },
-    { date: "2017-01-30", count: 2 },
-    { date: "2017-01-31", count: 3 },
-    { date: "2017-03-01", count: 2 },
-    { date: "2017-04-02", count: 4 },
-    { date: "2017-03-05", count: 2 },
-    { date: "2017-02-30", count: 4 },
+    { date: "0", count: 1 },
+    // { date: "1", count: 2 },
   ];
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.container__box}>
-        <View>
-          <View style={styles.metrics}>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
-            <Text>Hello</Text>
+      {props.result ? (
+        <ScrollView contentContainerStyle={styles.container__box}>
+          <View>
+            <View style={styles.metrics}>
+              {Object.keys(props.result.report).map((key, index) => (
+                <Text key={index}>
+                  {key}: {parseFloat(props.result.report[key]).toFixed(5)}
+                </Text>
+              ))}
+            </View>
           </View>
-        </View>
-        <View>
-          <LineChart
-            data={{
-              labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
-              datasets: [
-                {
-                  data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
-                },
-              ],
-            }}
-            width={Dimensions.get("window").width} // from react-native
-            height={220}
-            yAxisLabel="$"
-            yAxisSuffix="k"
-            yAxisInterval={1} // optional, defaults to 1
-            chartConfig={{
-              backgroundColor: "#e26a00",
-              backgroundGradientFrom: "#fb8c00",
-              backgroundGradientTo: "#ffa726",
-              decimalPlaces: 2, // optional, defaults to 2dp
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: {
-                borderRadius: 16,
-              },
-            }}
-            // bezier
-            style={{
-              marginVertical: 8,
-              borderRadius: 16,
-            }}
-          />
-          <ContributionGraph
-            values={commitsData}
-            endDate={new Date("2017-04-01")}
-            numDays={105}
-            width={Dimensions.get("window").width}
-            height={220}
-            chartConfig={{
-              backgroundColor: "#e26a00",
-              backgroundGradientFrom: "#fb8c00",
-              backgroundGradientTo: "#ffa726",
-              decimalPlaces: 2, // optional, defaults to 2dp
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: {
-                borderRadius: 16,
-              },
-            }}
-          />
-          <View style={{ height: 80 }} />
-        </View>
-      </ScrollView>
+          {props.result.type === 1 ? (
+            <>
+              <View>
+                <Button
+                  containerStyle={{ margin: 10 }}
+                  title="ROC_CURVE"
+                  onPress={toggleOverlay}
+                />
+
+                <Overlay
+                  overlayStyle={{ height: "75%", width: "95%" }}
+                  isVisible={visible}
+                  onBackdropPress={toggleOverlay}
+                >
+                  <Plotly
+                    enableFullPlotly={true}
+                    data={dataset}
+                    layout={{
+                      title: "Roc_curve",
+                      xaxis: {
+                        title: {
+                          text: "FPR",
+                        },
+                      },
+                      yaxis: {
+                        title: {
+                          text: "TPR(Recall)",
+                        },
+                      },
+                    }}
+                  />
+                </Overlay>
+              </View>
+              <View>
+                <Button
+                  // disabled={true}
+                  containerStyle={{ margin: 10 }}
+                  title="HEAT_MAP"
+                  onPress={toggleOverlayH}
+                />
+
+                <Overlay
+                  overlayStyle={{ height: "75%", width: "95%" }}
+                  isVisible={visibleH}
+                  onBackdropPress={toggleOverlayH}
+                >
+                  <Plotly
+                    enableFullPlotly={true}
+                    data={[
+                      {
+                        z: props.result.misc.conf_matrix,
+                        type: "heatmap",
+                      },
+                    ]}
+                    layout={{
+                      title: "HeatMap",
+                      xaxis: {
+                        title: {
+                          text: "Predicted",
+                        },
+                      },
+                      yaxis: {
+                        title: {
+                          text: "Actual",
+                        },
+                      },
+                    }}
+                  />
+                </Overlay>
+              </View>
+            </>
+          ) : props.result.type === 0 ? (
+            <View>
+              <Button
+                containerStyle={{ margin: 10 }}
+                title="Learning_curve"
+                onPress={toggleOverlay}
+              />
+
+              <Overlay
+                overlayStyle={{ height: "75%", width: "95%" }}
+                isVisible={visible}
+                onBackdropPress={toggleOverlay}
+              >
+                <Plotly
+                  enableFullPlotly={true}
+                  data={[
+                    {
+                      y: props.result.misc.learning_curve.train_err,
+                      color: "smoker",
+                      name: "train_err",
+                      line: {
+                        width: 2.5,
+                      },
+                    },
+                    {
+                      y: props.result.misc.learning_curve.val_err,
+                      color: "smoker",
+                      name: "val_err",
+                      line: {
+                        width: 2.5,
+                      },
+                    },
+                  ]}
+                  layout={{
+                    title: "Learning_curve",
+                    xaxis: {
+                      title: {
+                        text: "Train Data Size",
+                      },
+                    },
+                    yaxis: {
+                      title: {
+                        text: "RMSE",
+                      },
+                    },
+                  }}
+                />
+              </Overlay>
+            </View>
+          ) : null}
+        </ScrollView>
+      ) : (
+        <Text>Train To get Result</Text>
+      )}
     </SafeAreaView>
   );
 };
-
-export default ResultModel;
+const mapStateToProps = (state) => ({
+  result: state.testResult.result,
+  load: state.loadResult.load,
+});
+const mapDispatchToProps = {
+  loadResult,
+  logout,
+};
+export default connect(mapStateToProps, mapDispatchToProps)(ResultModel);
 
 const styles = StyleSheet.create({
   container: {
@@ -103,18 +210,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container__box: {
-    display: "flex",
     justifyContent: "space-between",
-    marginBottom: 20,
-    marginTop: 5,
     overflow: "scroll",
   },
   metrics: {
     backgroundColor: "#C4C4C4",
     margin: 10,
+    alignItems: "center",
+    padding: 10,
   },
   result: {
-    height: "90%",
+    height: "100%",
     backgroundColor: "#C4C4C4",
     marginTop: 10,
     //  height: "100%",

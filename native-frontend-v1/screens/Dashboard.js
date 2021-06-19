@@ -14,6 +14,7 @@ import { loadResult } from "../redux/actions/loadResult";
 function HeaderRight(props) {
   const handleLogOut = () => {
     alert("Log Out!");
+    // props.logout();
   };
   return (
     <Button

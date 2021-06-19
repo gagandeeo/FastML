@@ -12,7 +12,13 @@ import {
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Input, Button, ListItem, CheckBox } from "react-native-elements";
+import {
+  Input,
+  Button,
+  ListItem,
+  CheckBox,
+  Divider,
+} from "react-native-elements";
 import * as DocumentPicker from "expo-document-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import mlapiService from "../services/mlapi.service";
@@ -153,38 +159,39 @@ const TrainModel = (props) => {
     });
   }, []);
 
-  const pickDocument = async () => {
+  const pickDocument = async (e) => {
+    e.preventDefault();
     let result = await DocumentPicker.getDocumentAsync({});
+    if (result.type !== "cancel") {
+      const fileData = {
+        uri: result.uri,
+        name: result.name,
+        type: "text/csv",
+      };
 
-    const fileData = {
-      uri: result.uri,
-      name: result.name,
-      type: "text/csv",
-    };
+      const formData = new FormData();
 
-    const formData = new FormData();
+      formData.append("user_id", props.user_id);
+      formData.append("file", fileData);
+      console.log(formData);
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
 
-    formData.append("user_id", props.user_id);
-    formData.append("file", fileData);
-    console.log(formData);
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    if (token) {
-      config.headers["Authorization"] = `bearer ${token}`;
+      if (token) {
+        config.headers["Authorization"] = `bearer ${token}`;
+      }
+      mlapiService
+        .uploadData(formData, config)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
-    mlapiService
-      .uploadData(formData, config)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    // setDocument(result);
   };
   const propTypes = {
     postTest: PropTypes.func.isRequired,
@@ -194,7 +201,8 @@ const TrainModel = (props) => {
     testResult: PropTypes.func.isRequired,
   };
 
-  const handleTrainSub = () => {
+  const handleTrainSub = (e) => {
+    e.preventDefault();
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -251,24 +259,24 @@ const TrainModel = (props) => {
       alert("Please fill mandatory inputs");
     }
   };
-  const handleHyperChange = (e, key) => {
+  const handleHyperChange = (text, key) => {
     if (typeof props.data.hyper_params[`${key}`] == "number") {
-      props.data.hyper_params[`${key}`] = Number(e.target.value);
+      props.data.hyper_params[`${key}`] = Number(text);
     } else if (typeof props.data.hyper_params[`${key}`] == "boolean") {
-      if (e.target.value.toLowerCase() === "true") {
+      if (text.toLowerCase() === "true") {
         props.data.hyper_params[`${key}`] = true;
       } else {
         props.data.hyper_params[`${key}`] = false;
       }
     } else {
-      if (Number(e.target.value) != "NaN") {
-        props.data.hyper_params[`${key}`] = Number(e.target.value);
-      } else if (e.target.value.toLowerCase() === "true") {
+      if (Number(text) != "NaN") {
+        props.data.hyper_params[`${key}`] = Number(text);
+      } else if (text.toLowerCase() === "true") {
         props.data.hyper_params[`${key}`] = true;
-      } else if (e.target.value.toLowerCase() === "false") {
+      } else if (text.toLowerCase() === "false") {
         props.data.hyper_params[`${key}`] = true;
       } else {
-        props.data.hyper_params[`${key}`] = e.target.value;
+        props.data.hyper_params[`${key}`] = text;
       }
     }
   };
@@ -420,26 +428,28 @@ const TrainModel = (props) => {
                   contentContainerStyle={{
                     display: "flex",
                     width: "100%",
-                    alignItems: "center",
+                    // alignItems: "center",
                     justifyContent: "space-between",
                     padding: 10,
                   }}
                 >
                   {props.data ? (
                     <>
-                      <Text>PPP</Text>
-                      {/* {Object.keys(props.data.hyper_params).map(
+                      {/* <Text>PPP</Text> */}
+                      {Object.keys(props.data.hyper_params).map(
                         (key, index) => {
                           return (
                             <View key={index}>
                               <Text>{key}</Text>
                               <Input
-                                onChangeText={(e) => handleHyperChange(e, key)}
+                                onChangeText={(text) =>
+                                  handleHyperChange(text, key)
+                                }
                                 placeholder={
                                   props.data.hyper_params[key]
                                     ? typeof props.data.hyper_params[key] !==
                                       "boolean"
-                                      ? props.data.hyper_params[key]
+                                      ? props.data.hyper_params[key].toString()
                                       : props.data.hyper_params[key].toString()
                                     : "null"
                                 }
@@ -448,7 +458,8 @@ const TrainModel = (props) => {
                             </View>
                           );
                         }
-                      )} */}
+                      )}
+                      <View style={{ height: 10 }} />
                     </>
                   ) : null}
                 </ScrollView>
