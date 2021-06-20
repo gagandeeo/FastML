@@ -171,12 +171,13 @@ const TrainModel = (props) => {
 
       const formData = new FormData();
 
-      formData.append("user_id", props.user_id);
+      formData.append("user_id", props.user.user_id);
       formData.append("file", fileData);
       console.log(formData);
       const config = {
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
       };
 
@@ -195,17 +196,18 @@ const TrainModel = (props) => {
   };
   const propTypes = {
     postTest: PropTypes.func.isRequired,
-    user_id: PropTypes.number.isRequired,
+    user: PropTypes.object,
     data: PropTypes.object,
     loadResult: PropTypes.func.isRequired,
     testResult: PropTypes.func.isRequired,
   };
 
-  const handleTrainSub = (e) => {
+  const handleTrainSub = async (e) => {
     e.preventDefault();
     const config = {
       headers: {
         "Content-Type": "application/json",
+        Accept: "application/json",
       },
     };
 
@@ -214,7 +216,7 @@ const TrainModel = (props) => {
     }
 
     const data = {
-      user_id: props.user_id,
+      user_id: props.user.user_id,
       model_type: modelType,
       hyper_params: props.data.hyper_params,
       usecols: usecols,
@@ -229,7 +231,7 @@ const TrainModel = (props) => {
     if (targets) {
       props.loadResult({ isLoading: true });
 
-      mlapiService
+      await mlapiService
         .trainModel(data, config)
         .then((res) => {
           props.testResult(res.data);
@@ -280,21 +282,23 @@ const TrainModel = (props) => {
       }
     }
   };
-  const handleSelectModel = (model_name) => {
+  const handleSelectModel = async (model_name) => {
+    setModel(model_name);
     const data = {
-      user_id: props.user_id, //SET OVER HERE
+      user_id: props.user.user_id, //SET OVER HERE
       model_name: model_name,
     };
     console.log(data);
     const config = {
       headers: {
         "Content-Type": "application/json",
+        Accept: "application/json",
       },
     };
     if (token) {
       config.headers["Authorization"] = `bearer ${token}`;
     }
-    mlapiService
+    await mlapiService
       .selectModel(data, config)
       .then((res) => {
         props.postTest(res.data);
@@ -319,7 +323,7 @@ const TrainModel = (props) => {
         content={
           <>
             <ListItem.Content>
-              <ListItem.Title>Select Model</ListItem.Title>
+              <ListItem.Title>{model ? model : "Select Model"}</ListItem.Title>
             </ListItem.Content>
           </>
         }
@@ -483,7 +487,7 @@ const mapDispatchToProps = {
   loadResult,
 };
 const mapStateToProps = (state) => ({
-  user_id: state.auth.user.user_id,
+  user: state.auth.user,
   data: state.test.test,
 });
 export default connect(mapStateToProps, mapDispatchToProps)(TrainModel);

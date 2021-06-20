@@ -8,13 +8,13 @@ const SignUpPage = ({ navigation }) => {
   const [username, setUsername] = React.useState(null);
   const [password, setPassword] = React.useState(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const data = {
       email: email,
       password: password,
       username: username,
     };
-    usersApiService
+    await usersApiService
       .signup(data)
       .then((res) => {
         console.log(res);

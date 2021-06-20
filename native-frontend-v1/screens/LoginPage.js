@@ -14,12 +14,12 @@ const LoginPage = (props) => {
     isAuthenticated: PropTypes.bool,
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const formData = new FormData();
     formData.append("grant_type", "password");
     formData.append("username", email);
     formData.append("password", password);
-    props.login(formData, props.navigation);
+    await props.login(formData, props.navigation);
   };
 
   return (

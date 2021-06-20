@@ -9,10 +9,10 @@ export const login = (data, navigation) => (dispatch) => {
         type: LOGIN_SUCCESS,
         payload: res.data,
       });
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "Dashboard" }],
-      });
+      // navigation.reset({
+      //   index: 0,
+      //   routes: [{ name: "Dashboard" }],
+      // });
       console.log(res);
     })
     .catch((err) => {
