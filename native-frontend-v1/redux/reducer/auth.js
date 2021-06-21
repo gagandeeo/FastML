@@ -1,13 +1,23 @@
-import { LOGIN_SUCCESS, LOGOUT_SUCCESS } from "../actions/types";
+import {
+  LOGIN_SUCCESS,
+  USER_LOADING,
+  LOGOUT_SUCCESS,
+  LOGIN_FAIL,
+} from "../actions/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const initialState = {
   token: AsyncStorage.getItem("token"),
   isAuthenticated: false,
   user: null,
+  isLoading: false,
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
+    case USER_LOADING:
+      return {
+        isLoading: true,
+      };
     case LOGIN_SUCCESS:
       // console.log(action.payload.token);
       AsyncStorage.setItem("token", action.payload.token);
@@ -17,6 +27,14 @@ export default function (state = initialState, action) {
         ...state,
         ...action.payload,
         isAuthenticated: true,
+        isLoading: true,
+      };
+    case LOGIN_FAIL:
+      return {
+        token: null,
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
       };
     case LOGOUT_SUCCESS:
       AsyncStorage.removeItem("token");

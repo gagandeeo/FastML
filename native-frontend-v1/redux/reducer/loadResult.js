@@ -2,6 +2,7 @@ import { LOAD_RESULT } from "../actions/types";
 
 const initialState = {
   load: { isLoading: false, error: false },
+  loaded: false,
 };
 
 export default function (state = initialState, action) {
@@ -10,6 +11,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         load: action.payload,
+        loaded: true,
       };
     default:
       return state;

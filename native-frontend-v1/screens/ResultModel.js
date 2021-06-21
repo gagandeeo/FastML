@@ -10,6 +10,7 @@ import { logout } from "../redux/actions/auth";
 const ResultModel = (props) => {
   const [visible, setVisible] = React.useState(false);
   const [visibleH, setVisibleH] = React.useState(false);
+  const [timerA, setTimerA] = React.useState(false);
 
   const toggleOverlay = () => {
     setVisible(!visible);
@@ -27,10 +28,6 @@ const ResultModel = (props) => {
     load: PropTypes.object,
     logout: PropTypes.func.isRequired,
   };
-
-  React.useEffect(() => {
-    console.log(props.result);
-  }, []);
 
   if (props.result) {
     if (props.result.type === 1) {
@@ -96,6 +93,7 @@ const ResultModel = (props) => {
                       },
                     }}
                   />
+                  <Text>May take time to load...</Text>
                 </Overlay>
               </View>
               <View>
@@ -133,6 +131,7 @@ const ResultModel = (props) => {
                       },
                     }}
                   />
+                  <Text>May take time to load...</Text>
                 </Overlay>
               </View>
             </>
@@ -183,6 +182,7 @@ const ResultModel = (props) => {
                     },
                   }}
                 />
+                <Text>May take time to load...</Text>
               </Overlay>
             </View>
           ) : null}

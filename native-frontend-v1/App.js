@@ -24,51 +24,11 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      {/* <NavigationContainer>
-        <Stack.Navigator>
-          {token ? (
-            <Stack.Screen name="Dashboard" component={Dashboard} />
-          ) : (
-            <>
-              <Stack.Screen
-                name="LandingPage"
-                component={LandingPage}
-                options={({ navigation, route }) => ({
-                  headerTitle: "FastML",
-                })}
-              />
-              <Stack.Screen name="SignUpPage" component={SignUpPage} />
-              <Stack.Screen name="LoginPage" component={LoginPage} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer> */}
       <NavigationControl />
     </Provider>
   );
 };
 export default App;
-// export default function App() {
-//   return (
-//     <Provider store={store}>
-//       <NavigationContainer>
-//         <Stack.Navigator>
-//           <Stack.Screen
-//             name="LandingPage"
-//             component={LandingPage}
-//             options={({ navigation, route }) => ({
-//               headerTitle: "FastML",
-//             })}
-//           />
-//           <Stack.Screen name="SignUpPage" component={SignUpPage} />
-//           <Stack.Screen name="LoginPage" component={LoginPage} />
-//           <Stack.Screen name="Dashboard" component={Dashboard} />
-//         </Stack.Navigator>
-//       </NavigationContainer>
-//     </Provider>
-//   );
-// }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

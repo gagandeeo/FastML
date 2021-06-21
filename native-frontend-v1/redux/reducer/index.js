@@ -1,7 +1,6 @@
 import { combineReducers } from "redux";
 import test from "./test";
 import { persistReducer } from "redux-persist";
-// import storage from "redux-persist/lib/storage";
 import testResult from "./testResult";
 import loadResult from "./loadResult";
 import auth from "./auth";
@@ -21,4 +20,3 @@ const rootReducer = combineReducers({
 });
 
 export default persistReducer(persistConfig, rootReducer);
-// export default rootReducer;

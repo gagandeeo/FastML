@@ -12,6 +12,7 @@ import { connect } from "react-redux";
 import { loadResult } from "../redux/actions/loadResult";
 
 function HeaderRight(props) {
+  const [resultBadge, setResultBadge] = React.useState(false);
   const handleLogOut = () => {
     // alert("Log Out!");
     props.logout();
@@ -33,12 +34,13 @@ const Dashboard = (props) => {
     props.navigation.setOptions({
       headerRight: () => <HeaderRight logout={props.logout} />,
     });
-  });
+  }, []);
 
   const propTypes = {
     loadResult: PropTypes.func.isRequired,
     result: PropTypes.object,
     load: PropTypes.object,
+    loaded: PropTypes.bool,
     logout: PropTypes.func.isRequired,
   };
 
@@ -64,7 +66,11 @@ const Dashboard = (props) => {
       }}
     >
       <Tab.Screen name="Train" component={TrainModel} />
-      <Tab.Screen name="Report" component={ResultModel} />
+      <Tab.Screen
+        name="Report"
+        options={props.loaded ? { tabBarBadge: 3 } : null}
+        component={ResultModel}
+      />
       <Tab.Screen name="Predict" component={Predict} />
     </Tab.Navigator>
   );
@@ -72,6 +78,7 @@ const Dashboard = (props) => {
 const mapStateToProps = (state) => ({
   result: state.testResult.result,
   load: state.loadResult.load,
+  loaded: state.loadResult.loaded,
 });
 const mapDispatchToProps = {
   loadResult,

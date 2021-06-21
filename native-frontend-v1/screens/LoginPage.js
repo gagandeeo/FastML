@@ -1,17 +1,21 @@
 import React from "react";
 import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native";
-import { Input, Button } from "react-native-elements";
-import { login, logout } from "../redux/actions/auth";
+import { Input, Overlay, Button } from "react-native-elements";
+import { login } from "../redux/actions/auth";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import usersApiService from "../services/usersApi.service";
+
+import { SkypeIndicator } from "react-native-indicators";
 const LoginPage = (props) => {
   const [email, setEmail] = React.useState("test4@test.com");
   const [password, setPassword] = React.useState("test4");
+  const [progress, setProgress] = React.useState(false);
+
   const propTypes = {
     login: PropTypes.func.isRequired,
     logout: PropTypes.func.isRequired,
     isAuthenticated: PropTypes.bool,
+    isLoading: PropTypes.bool,
   };
 
   const handleSubmit = async () => {
@@ -19,11 +23,28 @@ const LoginPage = (props) => {
     formData.append("grant_type", "password");
     formData.append("username", email);
     formData.append("password", password);
-    await props.login(formData, props.navigation);
+    try {
+      await props.login(formData, setProgress);
+      setProgress(true);
+    } catch (err) {
+      alert("Try Again!!");
+    }
   };
 
   return (
     <KeyboardAvoidingView enabled style={styles.container}>
+      <Overlay
+        overlayStyle={{
+          marginBottom: 200,
+          height: "100%",
+          width: "100%",
+          backgroundColor: "transparent",
+        }}
+        isVisible={progress}
+        onBackdropPress={() => setProgress(false)}
+      >
+        <SkypeIndicator color="white" />
+      </Overlay>
       <View style={styles.login__box}>
         <Input
           onChangeText={(text) => setEmail(text)}
@@ -45,6 +66,8 @@ const LoginPage = (props) => {
           onPress={handleSubmit}
         />
       </View>
+      {/* </Overlay> */}
+
       <View style={{ height: 20 }} />
     </KeyboardAvoidingView>
   );
@@ -52,8 +75,11 @@ const LoginPage = (props) => {
 const mapDispatchToProps = {
   login,
 };
-
-export default connect(null, mapDispatchToProps)(LoginPage);
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+  isLoading: state.auth.isLoading,
+});
+export default connect(mapStateToProps, mapDispatchToProps)(LoginPage);
 
 const styles = StyleSheet.create({
   container: {

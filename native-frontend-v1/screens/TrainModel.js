@@ -9,6 +9,8 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 
+import { BallIndicator, PacmanIndicator } from "react-native-indicators";
+
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -18,6 +20,7 @@ import {
   ListItem,
   CheckBox,
   Divider,
+  Overlay,
 } from "react-native-elements";
 import * as DocumentPicker from "expo-document-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -83,7 +86,7 @@ const clusters = [
 ];
 function Taber(props) {
   return (
-    <View style={{}}>
+    <View>
       <View style={styles.taber}>
         <TouchableOpacity onPress={() => props.setModelType(0)}>
           <Text>Regression</Text>
@@ -136,8 +139,6 @@ function Taber(props) {
 
 const TrainModel = (props) => {
   const [model, setModel] = React.useState(null);
-
-  const [document, setDocument] = React.useState(null);
   const [checked, setChecked] = React.useState(false);
   const [expanded, setExpanded] = React.useState(false);
   const [expanded1, setExpanded1] = React.useState(false);
@@ -152,6 +153,9 @@ const TrainModel = (props) => {
   const [testSize, setTestSize] = useState(0.25);
   const [usecols, setUsecols] = useState(null);
   const [indexCol, setIndexCol] = useState(10000);
+  const [progress, setProgress] = React.useState(false);
+  const [progressH, setProgressH] = React.useState(false);
+  const [document, setDocument] = React.useState(null);
 
   React.useEffect(() => {
     AsyncStorage.getItem("token").then((res) => {
@@ -161,37 +165,49 @@ const TrainModel = (props) => {
 
   const pickDocument = async (e) => {
     e.preventDefault();
-    let result = await DocumentPicker.getDocumentAsync({});
-    if (result.type !== "cancel") {
-      const fileData = {
-        uri: result.uri,
-        name: result.name,
-        type: "text/csv",
-      };
+    try {
+      setDocument(null);
+      let result = await DocumentPicker.getDocumentAsync({}).then(
+        async (result) => {
+          if (result.type !== "cancel") {
+            const fileData = {
+              uri: result.uri,
+              name: result.name,
+              type: "text/csv",
+            };
 
-      const formData = new FormData();
+            const formData = new FormData();
 
-      formData.append("user_id", props.user.user_id);
-      formData.append("file", fileData);
-      console.log(formData);
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      };
+            formData.append("user_id", props.user.user_id);
+            formData.append("file", fileData);
+            const config = {
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            };
 
-      if (token) {
-        config.headers["Authorization"] = `bearer ${token}`;
-      }
-      mlapiService
-        .uploadData(formData, config)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+            if (token) {
+              config.headers["Authorization"] = `bearer ${token}`;
+            }
+            mlapiService
+              .uploadData(formData, config)
+              .then((res) => {
+                setDocument({ name: result.name, size: result.size });
+              })
+              .catch((error) => {
+                setDocument(null);
+                setProgress(false);
+                alert("Try Again!");
+              });
+          }
+        }
+      );
+      setProgress(true);
+    } catch (error) {
+      setDocument(null);
+      setProgress(false);
+      alert("Try Again!");
     }
   };
   const propTypes = {
@@ -204,6 +220,7 @@ const TrainModel = (props) => {
 
   const handleTrainSub = async (e) => {
     e.preventDefault();
+    setProgressH(true);
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -230,34 +247,38 @@ const TrainModel = (props) => {
     };
     if (targets) {
       props.loadResult({ isLoading: true });
-
       await mlapiService
         .trainModel(data, config)
         .then((res) => {
           props.testResult(res.data);
           props.loadResult({ isLoading: false });
-          console.log(res);
+          setProgressH(false);
         })
         .catch((err) => {
-          console.log(err);
-          const status = err.response.status;
-          if (status === 500) {
-            props.loadResult({
-              isLoading: false,
-              error: status,
-              msg: err.response.data.detail,
-            });
-            alert(err.response.data.detail);
-          } else if (status === 422) {
-            props.loadResult({
-              isLoading: false,
-              error: status,
-              msg: "verify inputs",
-            });
-            alert("verify inputs");
+          setProgressH(false);
+          if (err.response) {
+            const status = err.response.status;
+            if (status === 500) {
+              props.loadResult({
+                isLoading: false,
+                error: status,
+                msg: err.response.data.detail,
+              });
+              alert(err.response.data.detail);
+            } else if (status === 422) {
+              props.loadResult({
+                isLoading: false,
+                error: status,
+                msg: "verify inputs",
+              });
+              alert("verify inputs");
+            }
+          } else {
+            alert("Try Again");
           }
         });
     } else {
+      setProgressH(false);
       alert("Please fill mandatory inputs");
     }
   };
@@ -288,7 +309,6 @@ const TrainModel = (props) => {
       user_id: props.user.user_id, //SET OVER HERE
       model_name: model_name,
     };
-    console.log(data);
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -302,10 +322,9 @@ const TrainModel = (props) => {
       .selectModel(data, config)
       .then((res) => {
         props.postTest(res.data);
-        console.log(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        alert("Try Again!");
       });
   };
   return (
@@ -316,7 +335,17 @@ const TrainModel = (props) => {
     >
       <Button
         containerStyle={styles.btn}
-        title={"Load Data"}
+        title={
+          progress ? (
+            document ? (
+              document.name + "  " + (document.size / 1000).toFixed(2) + " KB"
+            ) : (
+              <BallIndicator color="white" size={35} />
+            )
+          ) : (
+            "Load Data"
+          )
+        }
         onPress={pickDocument}
       />
       <ListItem.Accordion
@@ -478,6 +507,18 @@ const TrainModel = (props) => {
           onPress={handleTrainSub}
         />
       </ListItem.Accordion>
+      <Overlay
+        overlayStyle={{
+          marginBottom: 200,
+          height: "100%",
+          width: "100%",
+          backgroundColor: "transparent",
+        }}
+        isVisible={progressH}
+        onBackdropPress={() => setProgressH(false)}
+      >
+        <PacmanIndicator color="#A3F4C1" />
+      </Overlay>
     </KeyboardAvoidingView>
   );
 };

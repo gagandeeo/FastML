@@ -1,7 +1,12 @@
 import usersApiServices from "../../services/usersApi.service";
-import { LOGIN_SUCCESS, LOGOUT_SUCCESS } from "./types";
+import {
+  LOGIN_SUCCESS,
+  LOGOUT_SUCCESS,
+  LOGIN_FAIL,
+  USER_LOADING,
+} from "./types";
 
-export const login = (data, navigation) => (dispatch) => {
+export const login = (data, setProgress) => (dispatch) => {
   usersApiServices
     .login(data)
     .then((res) => {
@@ -9,17 +14,10 @@ export const login = (data, navigation) => (dispatch) => {
         type: LOGIN_SUCCESS,
         payload: res.data,
       });
-      // navigation.reset({
-      //   index: 0,
-      //   routes: [{ name: "Dashboard" }],
-      // });
-      console.log(res);
     })
     .catch((err) => {
-      console.log(err);
-      // dispatch({
-      //   type: LOGIN_FAIL,
-      // });
+      alert("Login Failed");
+      setProgress(false);
     });
 };
 

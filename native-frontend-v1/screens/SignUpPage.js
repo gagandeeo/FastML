@@ -1,12 +1,14 @@
 import React from "react";
-import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native";
-import { Input, Button } from "react-native-elements";
+import { StyleSheet, View, KeyboardAvoidingView } from "react-native";
 import usersApiService from "../services/usersApi.service";
+import { Input, Overlay, Button } from "react-native-elements";
+import { SkypeIndicator } from "react-native-indicators";
 
 const SignUpPage = ({ navigation }) => {
   const [email, setEmail] = React.useState(null);
   const [username, setUsername] = React.useState(null);
   const [password, setPassword] = React.useState(null);
+  const [progress, setProgress] = React.useState(false);
 
   const handleSubmit = async () => {
     const data = {
@@ -14,21 +16,29 @@ const SignUpPage = ({ navigation }) => {
       password: password,
       username: username,
     };
-    await usersApiService
-      .signup(data)
-      .then((res) => {
-        console.log(res);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "LoginPage" }],
-        });
-      })
-      .catch((err) => {
-        console.log(err);
+    try {
+      await usersApiService.signup(data).then((res) => {
+        navigation.navigate("LoginPage");
       });
+      setProgress(true);
+    } catch (err) {
+      alert("Try Again");
+    }
   };
   return (
     <KeyboardAvoidingView enabled style={styles.container}>
+      <Overlay
+        overlayStyle={{
+          marginBottom: 200,
+          height: "100%",
+          width: "100%",
+          backgroundColor: "transparent",
+        }}
+        isVisible={progress}
+        onBackdropPress={() => setProgress(false)}
+      >
+        <SkypeIndicator color="white" />
+      </Overlay>
       <View style={styles.signup__box}>
         <Input
           onChangeText={(text) => setUsername(text)}

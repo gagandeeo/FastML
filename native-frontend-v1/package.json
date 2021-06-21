@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.5",
+    "@react-native-community/art": "^1.2.0",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-navigation/bottom-tabs": "^5.11.11",
     "@react-navigation/native": "^5.9.4",
@@ -29,6 +30,7 @@
     "react-native-elements": "^3.4.2",
     "react-native-fusioncharts": "^5.1.0",
     "react-native-gesture-handler": "^1.10.3",
+    "react-native-indicators": "^0.17.0",
     "react-native-plotly": "^5.0.0",
     "react-native-reanimated": "^2.2.0",
     "react-native-safe-area-context": "^3.2.0",
