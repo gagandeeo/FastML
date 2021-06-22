@@ -33,8 +33,8 @@ jobs:
               expo-password: ${{ secrets.EXPO_CLI_PASSWORD }}
               expo-cache: true
       - name: yarn install and build apk
-#         working-directory: ./native-frontend-v1
+        working-directory: ./native-frontend-v1
       # Runs a set of commands using the runners shell
         run: |
-          yarn --cwd ./native-frontend-v1 install
-          expo build:android -t apk ./native-frontend-v1
+          yarn install
+          expo build:android -t apk
